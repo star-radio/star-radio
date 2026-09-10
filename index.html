@@ -189,7 +189,7 @@
             margin-bottom: 0.4rem;
         }
 
-        /* Release Date - Λευκό */
+        /* Released Year - Λευκό */
         .release-date {
             font-size: 1.05rem;
             color: #ffffff;
@@ -217,7 +217,7 @@
             margin-top: 1rem;
             padding-top: 1.2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
-            display: none; /* Εμφανίζεται μόλις καταγραφεί το 1ο προηγούμενο κομμάτι */
+            display: none;
         }
 
         .history-title {
@@ -315,7 +315,7 @@
 
     <div class="now-playing-label">Now Playing:</div>
     <div class="track-title" id="song-title">Loading...</div>
-    <div class="release-date" id="song-release">Release Date: ----</div>
+    <div class="release-date" id="song-release">Released Year: ----</div>
     <div class="track-artist" id="song-artist">STAR RADIO</div>
 
     <!-- Λίστα Προηγούμενων Τραγουδιών -->
@@ -367,7 +367,6 @@
             `).join('');
         }
 
-        // Ζωντανή ανάκτηση τρέχοντος τραγουδιού μέσω SSE Stream (συμβατό με Chrome CORS)
         async function fetchNowPlaying() {
             try {
                 const response = await fetch('https://api.zeno.fm/mounts/metadata/subscribe/wqreogixiotuv');
@@ -384,32 +383,29 @@
                         if (match && match[1]) {
                             const rawTitle = match[1];
 
-                            // Αν εντοπιστεί νέο τραγούδι
                             if (rawTitle !== currentTrackFull && rawTitle.trim() !== "") {
                                 
-                                // Αποθήκευση του προηγούμενου τραγουδιού στο ιστορικό
                                 if (currentTrackFull !== "") {
                                     const prevArtist = document.getElementById('song-artist').innerText;
                                     const prevTitle = document.getElementById('song-title').innerText;
                                     
                                     if (prevTitle !== "Loading..." && prevTitle !== "Star Radio Live") {
                                         historyItems.unshift({ artist: prevArtist, title: prevTitle });
-                                        if (historyItems.length > 3) historyItems.pop(); // Κρατάει τα 3 τελευταία
+                                        if (historyItems.length > 3) historyItems.pop();
                                         renderHistoryUI();
                                     }
                                 }
 
                                 currentTrackFull = rawTitle;
 
-                                // Ενημέρωση Release Date
+                                // Ενημέρωση Released Year
                                 const yearMatch = rawTitle.match(/\((\d{4})\)/);
                                 if (yearMatch && yearMatch[1]) {
-                                    document.getElementById('song-release').innerText = 'Release Date: ' + yearMatch[1];
+                                    document.getElementById('song-release').innerText = 'Released Year: ' + yearMatch[1];
                                 } else {
-                                    document.getElementById('song-release').innerText = 'Release Date: ----';
+                                    document.getElementById('song-release').innerText = 'Released Year: ----';
                                 }
 
-                                // Διαχωρισμός Τίτλου / Καλλιτέχνη
                                 const cleanTitle = rawTitle.replace(/\s*\(\d{4}\)/, '');
                                 const parts = cleanTitle.split(' - ');
                                 
