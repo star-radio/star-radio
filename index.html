@@ -217,6 +217,7 @@
             margin-top: 1rem;
             padding-top: 1.2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: none; /* Εμφανίζεται μόλις καταγραφεί το 1ο προηγούμενο κομμάτι */
         }
 
         .history-title {
@@ -329,7 +330,8 @@
         const timeDisp = document.getElementById('timeDisp');
         const progressFill = document.getElementById('progressFill');
 
-        const STREAM_KEY = 'wqreogixiotuv';
+        let historyItems = [];
+        let currentTrackFull = "";
 
         playBtn.addEventListener('click', () => {
             if (audio.paused) {
@@ -348,36 +350,27 @@
             progressFill.style.width = ((audio.currentTime % 60) * (100 / 60)) + '%';
         });
 
-        // Ανάκτηση Ιστορικού με CORS Proxy
-        async function fetchSongHistory() {
-            try {
-                const targetUrl = `https://api.zeno.fm/mounts/metadata/history/${STREAM_KEY}`;
-                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-                
-                const res = await fetch(proxyUrl);
-                const data = await res.json();
-                
-                if (data && data.length > 1) {
-                    const pastSongs = data.slice(1, 4);
-                    const list = document.getElementById('historyList');
-                    
-                    list.innerHTML = pastSongs.map(item => {
-                        const clean = item.streamTitle.replace(/\s*\(\d{4}\)/, '');
-                        const parts = clean.split(' - ');
-                        const artist = parts.length > 1 ? parts[0] : 'STAR RADIO';
-                        const title = parts.length > 1 ? parts.slice(1).join(' - ') : clean;
-                        return `<li class="history-item"><span>${artist}</span> - ${title}</li>`;
-                    }).join('');
-                }
-            } catch (err) {
-                console.error("Σφάλμα ανάκτησης ιστορικού:", err);
+        function renderHistoryUI() {
+            const container = document.getElementById('historyContainer');
+            const list = document.getElementById('historyList');
+
+            if (historyItems.length === 0) {
+                container.style.display = 'none';
+                return;
             }
+
+            container.style.display = 'block';
+            list.innerHTML = historyItems.map(item => `
+                <li class="history-item">
+                    <span>${item.artist}</span> - ${item.title}
+                </li>
+            `).join('');
         }
 
-        // Ζωντανή ανάκτηση τρέχοντος τραγουδιού
+        // Ζωντανή ανάκτηση τρέχοντος τραγουδιού μέσω SSE Stream (συμβατό με Chrome CORS)
         async function fetchNowPlaying() {
             try {
-                const response = await fetch(`https://api.zeno.fm/mounts/metadata/subscribe/${STREAM_KEY}`);
+                const response = await fetch('https://api.zeno.fm/mounts/metadata/subscribe/wqreogixiotuv');
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
 
@@ -390,26 +383,44 @@
                         const match = chunk.match(/"streamTitle":"([^"]+)"/);
                         if (match && match[1]) {
                             const rawTitle = match[1];
-                            
-                            const yearMatch = rawTitle.match(/\((\d{4})\)/);
-                            if (yearMatch && yearMatch[1]) {
-                                document.getElementById('song-release').innerText = 'Release Date: ' + yearMatch[1];
-                            } else {
-                                document.getElementById('song-release').innerText = 'Release Date: ----';
-                            }
 
-                            const cleanTitle = rawTitle.replace(/\s*\(\d{4}\)/, '');
-                            const parts = cleanTitle.split(' - ');
-                            
-                            if (parts.length > 1) {
-                                document.getElementById('song-artist').innerText = parts[0];
-                                document.getElementById('song-title').innerText = parts.slice(1).join(' - ');
-                            } else {
-                                document.getElementById('song-title').innerText = cleanTitle;
-                                document.getElementById('song-artist').innerText = 'STAR RADIO';
-                            }
+                            // Αν εντοπιστεί νέο τραγούδι
+                            if (rawTitle !== currentTrackFull && rawTitle.trim() !== "") {
+                                
+                                // Αποθήκευση του προηγούμενου τραγουδιού στο ιστορικό
+                                if (currentTrackFull !== "") {
+                                    const prevArtist = document.getElementById('song-artist').innerText;
+                                    const prevTitle = document.getElementById('song-title').innerText;
+                                    
+                                    if (prevTitle !== "Loading..." && prevTitle !== "Star Radio Live") {
+                                        historyItems.unshift({ artist: prevArtist, title: prevTitle });
+                                        if (historyItems.length > 3) historyItems.pop(); // Κρατάει τα 3 τελευταία
+                                        renderHistoryUI();
+                                    }
+                                }
 
-                            fetchSongHistory();
+                                currentTrackFull = rawTitle;
+
+                                // Ενημέρωση Release Date
+                                const yearMatch = rawTitle.match(/\((\d{4})\)/);
+                                if (yearMatch && yearMatch[1]) {
+                                    document.getElementById('song-release').innerText = 'Release Date: ' + yearMatch[1];
+                                } else {
+                                    document.getElementById('song-release').innerText = 'Release Date: ----';
+                                }
+
+                                // Διαχωρισμός Τίτλου / Καλλιτέχνη
+                                const cleanTitle = rawTitle.replace(/\s*\(\d{4}\)/, '');
+                                const parts = cleanTitle.split(' - ');
+                                
+                                if (parts.length > 1) {
+                                    document.getElementById('song-artist').innerText = parts[0];
+                                    document.getElementById('song-title').innerText = parts.slice(1).join(' - ');
+                                } else {
+                                    document.getElementById('song-title').innerText = cleanTitle;
+                                    document.getElementById('song-artist').innerText = 'STAR RADIO';
+                                }
+                            }
                         }
                     }
                 }
@@ -418,7 +429,6 @@
             }
         }
 
-        fetchSongHistory();
         fetchNowPlaying();
     </script>
 </body>
