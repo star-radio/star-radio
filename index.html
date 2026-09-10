@@ -348,10 +348,13 @@
             progressFill.style.width = ((audio.currentTime % 60) * (100 / 60)) + '%';
         });
 
-        // 1. Άμεση ανάκτηση του Ιστορικού (3 Τραγούδια)
+        // Ανάκτηση Ιστορικού με CORS Proxy
         async function fetchSongHistory() {
             try {
-                const res = await fetch(`https://api.zeno.fm/mounts/metadata/history/${STREAM_KEY}`);
+                const targetUrl = `https://api.zeno.fm/mounts/metadata/history/${STREAM_KEY}`;
+                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+                
+                const res = await fetch(proxyUrl);
                 const data = await res.json();
                 
                 if (data && data.length > 1) {
@@ -367,11 +370,11 @@
                     }).join('');
                 }
             } catch (err) {
-                console.error("Σφάλμα ιστορικού:", err);
+                console.error("Σφάλμα ανάκτησης ιστορικού:", err);
             }
         }
 
-        // 2. Ζωντανή ανάκτηση τρέχοντος τραγουδιού
+        // Ζωντανή ανάκτηση τρέχοντος τραγουδιού
         async function fetchNowPlaying() {
             try {
                 const response = await fetch(`https://api.zeno.fm/mounts/metadata/subscribe/${STREAM_KEY}`);
