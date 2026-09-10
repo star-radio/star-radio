@@ -101,7 +101,7 @@
             position: relative;
             width: 100%;
             max-width: 420px;
-            margin: 1.8rem 0;
+            margin: 1.8rem 0 1.2rem 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -169,16 +169,14 @@
             font-size: 1.0rem;
         }
 
-        audio.hidden-player {
-            display: none;
-        }
+        audio.hidden-player { display: none; }
 
         /* Ετικέτα Now Playing - Φωτεινό Κίτρινο */
         .now-playing-label {
             font-size: 1.3rem;
             color: #ffea00;
             text-shadow: 0 0 12px rgba(255, 234, 0, 0.9), 0 0 22px rgba(255, 200, 0, 0.6);
-            margin-top: 1.2rem;
+            margin-top: 1rem;
             margin-bottom: 0.4rem;
             letter-spacing: 1.5px;
             font-weight: bold;
@@ -208,6 +206,47 @@
             text-transform: uppercase;
             color: #ffea00;
             text-shadow: 0 0 12px rgba(255, 234, 0, 0.8), 0 2px 4px rgba(0,0,0,0.9);
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Ενότητα Recently Played */
+        .history-container {
+            width: 100%;
+            max-width: 420px;
+            margin-top: 1rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .history-title {
+            font-size: 0.95rem;
+            color: #ffea00;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+            text-shadow: 0 0 8px rgba(255, 234, 0, 0.5);
+        }
+
+        .history-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item {
+            font-size: 0.85rem;
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            letter-spacing: 1px;
+        }
+
+        .history-item span {
+            color: #ffea00;
             font-weight: bold;
         }
 
@@ -246,20 +285,15 @@
                     <stop offset="70%" stop-color="#831843"/><stop offset="100%" stop-color="#4c0519"/>
                 </radialGradient>
             </defs>
-            <!-- Κασέτα -->
             <g transform="translate(10, 12) rotate(-8)">
                 <rect width="80" height="50" rx="5" fill="#881337" stroke="#ffb3c1" stroke-width="1.5"/>
                 <rect x="8" y="7" width="64" height="22" rx="3" fill="#200007" stroke="#ec4899" stroke-width="1"/>
                 <circle cx="24" cy="18" r="6" fill="#fff"/><circle cx="56" cy="18" r="6" fill="#fff"/>
                 <polygon points="20,40 60,40 55,46 25,46" fill="#4c0519"/>
             </g>
-            <!-- CD 1 -->
             <g transform="translate(100, 10)"><circle cx="26" cy="26" r="25" fill="url(#pink)" stroke="#ffb3c1" stroke-width="1"/><circle cx="26" cy="26" r="9" fill="#ffe4e6" opacity="0.6"/><circle cx="26" cy="26" r="4" fill="#200007"/></g>
-            <!-- CD 2 Χρυσό -->
             <g transform="translate(140, 2)"><circle cx="28" cy="28" r="27" fill="url(#gold)" stroke="#fef08a" stroke-width="1.2"/><circle cx="28" cy="28" r="10" fill="#fef9c3" opacity="0.8"/><circle cx="28" cy="28" r="4.5" fill="#200007"/></g>
-            <!-- CD 3 -->
             <g transform="translate(185, 8)"><circle cx="26" cy="26" r="25" fill="url(#pink)" stroke="#ffb3c1" stroke-width="1"/><circle cx="26" cy="26" r="9" fill="#ffe4e6" opacity="0.6"/><circle cx="26" cy="26" r="4" fill="#200007"/></g>
-            <!-- CD 4 -->
             <g transform="translate(225, 14)"><circle cx="24" cy="24" r="23" fill="url(#pink)" stroke="#ffb3c1" stroke-width="1"/><circle cx="24" cy="24" r="8" fill="#ffe4e6" opacity="0.6"/><circle cx="24" cy="24" r="3.5" fill="#200007"/></g>
         </svg>
 
@@ -275,7 +309,6 @@
 
         <audio id="audio" class="hidden-player" preload="none">
             <source src="https://stream.zeno.fm/wqreogixiotuv" type="audio/mpeg">
-            Your browser does not support the audio element.
         </audio>
     </div>
 
@@ -284,11 +317,19 @@
     <div class="release-date" id="song-release">Release Date: ----</div>
     <div class="track-artist" id="song-artist">STAR RADIO</div>
 
+    <!-- Λίστα Προηγούμενων Τραγουδιών -->
+    <div class="history-container" id="historyContainer">
+        <div class="history-title">Recently Played</div>
+        <ul class="history-list" id="historyList"></ul>
+    </div>
+
     <script>
         const audio = document.getElementById('audio');
         const playBtn = document.getElementById('playBtn');
         const timeDisp = document.getElementById('timeDisp');
         const progressFill = document.getElementById('progressFill');
+
+        const STREAM_KEY = 'wqreogixiotuv';
 
         playBtn.addEventListener('click', () => {
             if (audio.paused) {
@@ -307,9 +348,33 @@
             progressFill.style.width = ((audio.currentTime % 60) * (100 / 60)) + '%';
         });
 
+        // 1. Άμεση ανάκτηση του Ιστορικού (3 Τραγούδια)
+        async function fetchSongHistory() {
+            try {
+                const res = await fetch(`https://api.zeno.fm/mounts/metadata/history/${STREAM_KEY}`);
+                const data = await res.json();
+                
+                if (data && data.length > 1) {
+                    const pastSongs = data.slice(1, 4);
+                    const list = document.getElementById('historyList');
+                    
+                    list.innerHTML = pastSongs.map(item => {
+                        const clean = item.streamTitle.replace(/\s*\(\d{4}\)/, '');
+                        const parts = clean.split(' - ');
+                        const artist = parts.length > 1 ? parts[0] : 'STAR RADIO';
+                        const title = parts.length > 1 ? parts.slice(1).join(' - ') : clean;
+                        return `<li class="history-item"><span>${artist}</span> - ${title}</li>`;
+                    }).join('');
+                }
+            } catch (err) {
+                console.error("Σφάλμα ιστορικού:", err);
+            }
+        }
+
+        // 2. Ζωντανή ανάκτηση τρέχοντος τραγουδιού
         async function fetchNowPlaying() {
             try {
-                const response = await fetch('https://api.zeno.fm/mounts/metadata/subscribe/wqreogixiotuv');
+                const response = await fetch(`https://api.zeno.fm/mounts/metadata/subscribe/${STREAM_KEY}`);
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
 
@@ -340,6 +405,8 @@
                                 document.getElementById('song-title').innerText = cleanTitle;
                                 document.getElementById('song-artist').innerText = 'STAR RADIO';
                             }
+
+                            fetchSongHistory();
                         }
                     }
                 }
@@ -348,6 +415,7 @@
             }
         }
 
+        fetchSongHistory();
         fetchNowPlaying();
     </script>
 </body>
