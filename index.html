@@ -330,6 +330,7 @@
         const timeDisp = document.getElementById('timeDisp');
         const progressFill = document.getElementById('progressFill');
 
+        const STREAM_KEY = 'wqreogixiotuv';
         let historyItems = [];
         let currentTrackFull = "";
 
@@ -367,9 +368,34 @@
             `).join('');
         }
 
+        // 1. Άμεση ανάκτηση των 5 τελευταίων τραγουδιών από το API της Zeno.fm
+        async function fetchSongHistoryAPI() {
+            try {
+                const res = await fetch(`https://api.zeno.fm/mounts/metadata/history/${STREAM_KEY}`);
+                const data = await res.json();
+                
+                if (data && data.length > 1) {
+                    // Παίρνουμε τα 5 προηγούμενα τραγούδια (από τη θέση 1 έως τη θέση 5)
+                    const pastSongs = data.slice(1, 6);
+                    historyItems = pastSongs.map(item => {
+                        const clean = item.streamTitle.replace(/\s*\(\d{4}\)/, '');
+                        const parts = clean.split(' - ');
+                        return {
+                            artist: parts.length > 1 ? parts[0] : 'STAR RADIO',
+                            title: parts.length > 1 ? parts.slice(1).join(' - ') : clean
+                        };
+                    });
+                    renderHistoryUI();
+                }
+            } catch (err) {
+                console.error("Σφάλμα ιστορικού:", err);
+            }
+        }
+
+        // 2. Ζωντανό stream & ενημέρωση όταν αλλάζει το τραγούδι στον αέρα
         async function fetchNowPlaying() {
             try {
-                const response = await fetch('https://api.zeno.fm/mounts/metadata/subscribe/wqreogixiotuv');
+                const response = await fetch(`https://api.zeno.fm/mounts/metadata/subscribe/${STREAM_KEY}`);
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
 
@@ -391,7 +417,7 @@
                                     
                                     if (prevTitle !== "Loading..." && prevTitle !== "Star Radio Live") {
                                         historyItems.unshift({ artist: prevArtist, title: prevTitle });
-                                        if (historyItems.length > 3) historyItems.pop();
+                                        if (historyItems.length > 5) historyItems.pop(); // Κρατάει αυστηρά τα 5 τελευταία
                                         renderHistoryUI();
                                     }
                                 }
@@ -425,6 +451,8 @@
             }
         }
 
+        // Αρχική εκτέλεση
+        fetchSongHistoryAPI();
         fetchNowPlaying();
     </script>
 </body>
