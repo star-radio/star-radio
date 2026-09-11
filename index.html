@@ -100,7 +100,7 @@
         .player-wrapper {
             position: relative;
             width: 100%;
-            max-width: 420px;
+            max-width: 440px;
             margin: 1.8rem 0 1.2rem 0;
             display: flex;
             flex-direction: column;
@@ -127,7 +127,7 @@
             display: flex;
             align-items: center;
             padding: 0 16px;
-            gap: 12px;
+            gap: 10px;
             z-index: 2;
         }
 
@@ -164,9 +164,58 @@
             box-shadow: 0 0 8px #ff007f;
         }
 
-        .vol-icon {
+        /* Περιοχή Controls Έντασης */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .vol-btn {
+            background: none;
+            border: none;
             color: #d1d1d1;
             font-size: 1.0rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+        .vol-btn:hover { color: #ffffff; }
+
+        /* Slider Έντασης */
+        .vol-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 55px;
+            height: 5px;
+            background: #222;
+            border-radius: 3px;
+            outline: none;
+            border: 1px solid #555;
+            cursor: pointer;
+        }
+
+        .vol-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #ffea00;
+            box-shadow: 0 0 5px #ffea00;
+            cursor: pointer;
+        }
+
+        .vol-slider::-moz-range-thumb {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #ffea00;
+            box-shadow: 0 0 5px #ffea00;
+            cursor: pointer;
+            border: none;
         }
 
         audio.hidden-player { display: none; }
@@ -257,6 +306,7 @@
             .logo-sub { font-size: 1rem; }
             .track-title { font-size: 1.5rem; }
             .now-playing-label { font-size: 1.1rem; }
+            .vol-slider { width: 45px; }
         }
     </style>
 </head>
@@ -305,7 +355,12 @@
             <div class="progress-bar-bg">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
-            <span class="vol-icon">🔊</span>
+            
+            <!-- Controls Έντασης Ήχου -->
+            <div class="volume-container">
+                <button class="vol-btn" id="volBtn" title="Σίγαση/Ενεργοποίηση">🔊</button>
+                <input type="range" class="vol-slider" id="volSlider" min="0" max="1" step="0.01" value="1" title="Ένταση ήχου">
+            </div>
         </div>
 
         <audio id="audio" class="hidden-player" preload="none">
@@ -329,11 +384,15 @@
         const playBtn = document.getElementById('playBtn');
         const timeDisp = document.getElementById('timeDisp');
         const progressFill = document.getElementById('progressFill');
+        const volBtn = document.getElementById('volBtn');
+        const volSlider = document.getElementById('volSlider');
 
         const STREAM_KEY = 'wqreogixiotuv';
         let historyItems = [];
         let currentTrackFull = "";
+        let lastVolume = 1;
 
+        // Play/Pause Control
         playBtn.addEventListener('click', () => {
             if (audio.paused) {
                 audio.play();
@@ -343,6 +402,38 @@
                 playBtn.innerText = '▶';
             }
         });
+
+        // Ρύθμιση έντασης μέσω του slider
+        volSlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            audio.volume = val;
+            updateVolIcon(val);
+        });
+
+        // Toggle Mute / Unmute με κλικ στο εικονίδιο
+        volBtn.addEventListener('click', () => {
+            if (audio.volume > 0) {
+                lastVolume = audio.volume;
+                audio.volume = 0;
+                volSlider.value = 0;
+                updateVolIcon(0);
+            } else {
+                audio.volume = lastVolume > 0 ? lastVolume : 1;
+                volSlider.value = audio.volume;
+                updateVolIcon(audio.volume);
+            }
+        });
+
+        // Ενημέρωση εικονιδίου ανάλογα με την ένταση
+        function updateVolIcon(val) {
+            if (val === 0) {
+                volBtn.innerText = '🔇';
+            } else if (val < 0.5) {
+                volBtn.innerText = '🔉';
+            } else {
+                volBtn.innerText = '🔊';
+            }
+        }
 
         audio.addEventListener('timeupdate', () => {
             const m = Math.floor(audio.currentTime / 60);
@@ -375,7 +466,6 @@
                 const data = await res.json();
                 
                 if (data && data.length > 1) {
-                    // Παίρνουμε τα 5 προηγούμενα τραγούδια (από τη θέση 1 έως τη θέση 5)
                     const pastSongs = data.slice(1, 6);
                     historyItems = pastSongs.map(item => {
                         const clean = item.streamTitle.replace(/\s*\(\d{4}\)/, '');
@@ -417,7 +507,7 @@
                                     
                                     if (prevTitle !== "Loading..." && prevTitle !== "Star Radio Live") {
                                         historyItems.unshift({ artist: prevArtist, title: prevTitle });
-                                        if (historyItems.length > 5) historyItems.pop(); // Κρατάει αυστηρά τα 5 τελευταία
+                                        if (historyItems.length > 5) historyItems.pop();
                                         renderHistoryUI();
                                     }
                                 }
