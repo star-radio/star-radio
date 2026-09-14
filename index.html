@@ -347,27 +347,6 @@
             font-weight: bold;
         }
 
-        /* Κουμπί Αντιγραφής Κώδικα για GitHub */
-        .copy-code-btn {
-            margin-top: 1.5rem;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #ffea00 0%, #d4ac0d 100%);
-            color: #1a0006;
-            border: none;
-            border-radius: 20px;
-            font-family: 'Audiowide', cursive, sans-serif;
-            font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 234, 0, 0.4);
-            transition: all 0.2s ease;
-        }
-
-        .copy-code-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(255, 234, 0, 0.6);
-        }
-
         @media (max-width: 480px) {
             .logo-main { font-size: 2.8rem; }
             .star { font-size: 1.8rem; }
@@ -474,9 +453,6 @@
         <div class="history-title">Recently Played</div>
         <ul class="history-list" id="historyList"></ul>
     </div>
-
-    <!-- Κουμπί Αντιγραφής Κώδικα για να το βάλεις στο GitHub -->
-    <button class="copy-code-btn" id="copyCodeBtn" onclick="copyEntireCode()">📋 Αντιγραφή Κώδικα για GitHub</button>
 
     <script>
         const audio = document.getElementById('audio');
@@ -638,34 +614,6 @@
             } catch (err) {
                 document.getElementById('song-title').innerText = 'Star Radio Live';
             }
-        }
-
-        // Συνάρτηση για αντιγραφή ολόκληρου του κώδικα HTML στο Clipboard
-        function copyEntireCode() {
-            const codeText = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-            
-            // Δημιουργία πρόσκαιρου textarea για την αντιγραφή
-            const textarea = document.createElement('textarea');
-            textarea.value = codeText;
-            document.body.appendChild(textarea);
-            textarea.select();
-            
-            try {
-                document.execCommand('copy');
-                const btn = document.getElementById('copyCodeBtn');
-                btn.innerText = '✔ Ο Κώδικας Αντιγράφηκε!';
-                btn.style.background = '#00ff88';
-                btn.style.color = '#000';
-                
-                setTimeout(() => {
-                    btn.innerText = '📋 Αντιγραφή Κώδικα για GitHub';
-                    btn.style.background = 'linear-gradient(135deg, #ffea00 0%, #d4ac0d 100%)';
-                }, 3000);
-            } catch (err) {
-                console.error('Αποτυχία αντιγραφής:', err);
-            }
-            
-            document.body.removeChild(textarea);
         }
 
         // Αρχική εκτέλεση
