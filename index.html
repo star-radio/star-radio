@@ -22,7 +22,7 @@
             color: #ffffff;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
             width: 100vw;
@@ -289,7 +289,7 @@
             justify-content: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            background-color: #ffffff;
+            background-color: #ffffff; /* Λευκό φόντο στο κουμπί ώστε το εικονίδιο να ξεχωρίζει */
         }
 
         .social-icon-img {
@@ -297,62 +297,40 @@
             height: 26px;
         }
 
-        /* -------------------------------------------------------------
-           ΚΑΤΩ ΠΕΡΙΟΧΗ: Recently Played (Αριστερά) & Chatango Chat (Δεξιά)
-        ------------------------------------------------------------- */
-        .bottom-split-container {
+        /* Ενότητα Recently Played */
+        .history-container {
             width: 100%;
-            max-width: 860px;
-            margin-top: 1rem;
-            padding-top: 1.5rem;
+            max-width: 420px;
+            margin-top: 0.5rem;
+            padding-top: 1.2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-            align-items: stretch;
+            display: none;
         }
 
-        .bottom-split-box {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
-            text-align: left;
-        }
-
-        .box-title {
+        .history-title {
             font-size: 0.95rem;
             color: #ffea00;
             letter-spacing: 2px;
             text-transform: uppercase;
             margin-bottom: 0.8rem;
-            text-align: center;
             text-shadow: 0 0 8px rgba(255, 234, 0, 0.5);
         }
 
-        /* 1. ΑΡΙΣΤΕΡΑ: History List */
         .history-list {
             list-style: none;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            height: 240px;
-            overflow-y: auto;
         }
 
         .history-item {
             font-size: 0.85rem;
             color: #ffffff;
             background: rgba(0, 0, 0, 0.3);
-            padding: 8px 12px;
-            border-radius: 10px;
+            padding: 8px 14px;
+            border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             letter-spacing: 1px;
-            word-break: break-word;
         }
 
         .history-item span {
@@ -360,21 +338,7 @@
             font-weight: bold;
         }
 
-        /* 2. ΔΕΞΙΑ: Chatango Wrapper */
-        .chat-wrapper {
-            width: 100%;
-            height: 240px;
-            border-radius: 10px;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        @media (max-width: 768px) {
-            .bottom-split-container {
-                flex-direction: column;
-            }
+        @media (max-width: 480px) {
             .logo-main { font-size: 2.8rem; }
             .star { font-size: 1.8rem; }
             .logo-sub { font-size: 1rem; }
@@ -462,35 +426,21 @@
         <a href="https://www.instagram.com/star.radio.official/" target="_blank" rel="noopener noreferrer" class="social-link" title="Ακολουθήστε μας στο Instagram">
             <div class="social-badge">
                 <svg class="social-icon-img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Rounded Camera Outer Border -->
                     <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5" fill="none" stroke="#4a0013" stroke-width="2.2"/>
+                    <!-- Center Circle Lens -->
                     <circle cx="12" cy="12" r="4.2" fill="none" stroke="#4a0013" stroke-width="2.2"/>
+                    <!-- Top Right Flash Dot -->
                     <circle cx="17.3" cy="6.7" r="1.3" fill="#4a0013"/>
                 </svg>
             </div>
         </a>
     </div>
 
-    <!-- -------------------------------------------------------------
-         ΚΑΤΩ ΟΘΟΝΗ: Recently Played (Αριστερά) & Chatango Chat (Δεξιά)
-    ------------------------------------------------------------- -->
-    <div class="bottom-split-container">
-        
-        <!-- 1. ΑΡΙΣΤΕΡΟ ΚΟΜΜΑΤΙ: Recently Played -->
-        <div class="bottom-split-box">
-            <div class="box-title">Recently Played</div>
-            <ul class="history-list" id="historyList">
-                <li class="history-item"><span>STAR RADIO</span> - Live Stream Loading...</li>
-            </ul>
-        </div>
-
-        <!-- 2. ΔΕΞΙ ΚΟΜΜΑΤΙ: Chatango Live Chat -->
-        <div class="bottom-split-box">
-            <div class="box-title">★ Live Chat ★</div>
-            <div class="chat-wrapper">
-                <script id="cid0020000452014639525" data-cfasync="false" async src="https://st.chatango.com/js/gz/emb.js" style="width: 100%; height: 100%;">{"handle":"star-chat","arch":"js","styles":{"a":"930628","b":100,"c":"FFFFFF","d":"FFFFFF","k":"930628","l":"930628","m":"930628","n":"FFFFFF","p":"10","q":"930628","r":100,"fwtickm":1}}</script>
-            </div>
-        </div>
-
+    <!-- Λίστα Προηγούμενων Τραγουδιών (4 tracks) -->
+    <div class="history-container" id="historyContainer">
+        <div class="history-title">Recently Played</div>
+        <ul class="history-list" id="historyList"></ul>
     </div>
 
     <script>
@@ -524,7 +474,7 @@
             updateVolIcon(val);
         });
 
-        // Toggle Mute / Unmute
+        // Toggle Mute / Unmute με κλικ στο εικονίδιο
         volBtn.addEventListener('click', () => {
             if (audio.volume > 0) {
                 lastVolume = audio.volume;
@@ -538,6 +488,7 @@
             }
         });
 
+        // Ενημέρωση εικονιδίου ανάλογα με την ένταση
         function updateVolIcon(val) {
             if (val === 0) {
                 volBtn.innerText = '🔇';
@@ -556,13 +507,15 @@
         });
 
         function renderHistoryUI() {
+            const container = document.getElementById('historyContainer');
             const list = document.getElementById('historyList');
 
             if (historyItems.length === 0) {
-                list.innerHTML = `<li class="history-item"><span>STAR RADIO</span> - Live Stream</li>`;
+                container.style.display = 'none';
                 return;
             }
 
+            container.style.display = 'block';
             list.innerHTML = historyItems.map(item => `
                 <li class="history-item">
                     <span>${item.artist}</span> - ${item.title}
