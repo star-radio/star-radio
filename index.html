@@ -2,7 +2,7 @@
 <html lang="el"> 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Radio - Live Web Player</title>
     <!-- Εισαγωγή γραμματοσειράς Audiowide -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -326,7 +326,7 @@
             font-weight: bold;
         }
 
-        /* --- STYLES ΓΙΑ ΤΟ FLOATING LIVE CHAT (FIXED FOR MOBILE) --- */
+        /* --- STYLES ΓΙΑ ΤΟ FLOATING CHAT --- */
         #floating-chat-btn {
             position: fixed;
             bottom: 20px;
@@ -403,7 +403,6 @@
             background: #ffffff;
         }
 
-        /* Βελτιστοποίηση ειδικά για κινητά τηλέφωνα */
         @media (max-width: 600px) {
             .logo-main { font-size: 2.8rem; }
             .star { font-size: 1.8rem; }
@@ -411,20 +410,6 @@
             .track-title { font-size: 1.5rem; }
             .now-playing-label { font-size: 1.1rem; }
             .vol-slider { width: 45px; }
-
-            /* Πλήρης οθόνη στο κινητό για να δουλεύει άψογα το πληκτρολόγιο */
-            #floating-chat-window {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                width: 100vw;
-                height: 100vh;
-                border: none;
-                border-radius: 0;
-                z-index: 999999;
-            }
         }
     </style>
 </head>
@@ -511,7 +496,7 @@
         <ul class="history-list" id="historyList"></ul>
     </div>
 
-    <!-- FLOATING LIVE CHAT WIDGET (DIRECT IFRAME FOR MOBILE SUPPORT) -->
+    <!-- FLOATING LIVE CHAT WIDGET -->
     <button id="floating-chat-btn" onclick="toggleChat()">💬 Live Chat</button>
 
     <div id="floating-chat-window" class="chat-hidden">
@@ -535,9 +520,17 @@
         let currentTrackFull = "";
         let lastVolume = 1;
 
+        const MINNIT_CHAT_URL = "https://organizations.minnit.chat/147612645677363/c/Main";
+
         function toggleChat() {
-            const chatWin = document.getElementById('floating-chat-window');
-            chatWin.classList.toggle('chat-hidden');
+            // Αν είναι κινητό (οθόνη κάτω από 600px), ανοίγει απευθείας τη σελίδα του chat
+            if (window.innerWidth <= 600) {
+                window.open(MINNIT_CHAT_URL, '_blank');
+            } else {
+                // Σε υπολογιστή ανοίγει το floating παράθυρο
+                const chatWin = document.getElementById('floating-chat-window');
+                chatWin.classList.toggle('chat-hidden');
+            }
         }
 
         playBtn.addEventListener('click', () => {
