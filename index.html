@@ -326,7 +326,7 @@
             font-weight: bold;
         }
 
-        /* --- STYLES ΓΙΑ ΤΟ FLOATING CHAT --- */
+        /* --- STYLES ΓΙΑ ΤΟ FLOATING CHAT BUTTON & WINDOW --- */
         #floating-chat-btn {
             position: fixed;
             bottom: 20px;
@@ -345,7 +345,12 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none;
             transition: transform 0.2s;
+        }
+
+        #floating-chat-btn:hover {
+            transform: scale(1.05);
         }
 
         #floating-chat-window {
@@ -403,6 +408,7 @@
             background: #ffffff;
         }
 
+        /* Απόκρυψη παραθύρου desktop στα κινητά για να αποτραπεί το iframe bug */
         @media (max-width: 600px) {
             .logo-main { font-size: 2.8rem; }
             .star { font-size: 1.8rem; }
@@ -410,6 +416,10 @@
             .track-title { font-size: 1.5rem; }
             .now-playing-label { font-size: 1.1rem; }
             .vol-slider { width: 45px; }
+
+            #floating-chat-window {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -497,12 +507,12 @@
     </div>
 
     <!-- FLOATING LIVE CHAT WIDGET -->
-    <button id="floating-chat-btn" onclick="toggleChat()">💬 Live Chat</button>
+    <a id="floating-chat-btn" href="javascript:void(0)" onclick="handleChatClick()">💬 Live Chat</a>
 
     <div id="floating-chat-window" class="chat-hidden">
         <div class="chat-header">
             <span>★ STAR RADIO LIVE CHAT</span>
-            <button onclick="toggleChat()">✕</button>
+            <button onclick="toggleChatWindow()">✕</button>
         </div>
         <iframe class="chat-iframe" src="https://organizations.minnit.chat/147612645677363/c/Main?embed" allow="autoplay; microphone; camera"></iframe>
     </div>
@@ -522,15 +532,18 @@
 
         const MINNIT_CHAT_URL = "https://organizations.minnit.chat/147612645677363/c/Main";
 
-        function toggleChat() {
-            // Αν είναι κινητό (οθόνη κάτω από 600px), ανοίγει απευθείας τη σελίδα του chat
+        function handleChatClick() {
+            // Αν η οθόνη είναι κινητό (<=600px), ανοίγει κατευθείαν το chat σε νέα καρτέλα για να δουλεύει άψογα το πληκτρολόγιο
             if (window.innerWidth <= 600) {
                 window.open(MINNIT_CHAT_URL, '_blank');
             } else {
-                // Σε υπολογιστή ανοίγει το floating παράθυρο
-                const chatWin = document.getElementById('floating-chat-window');
-                chatWin.classList.toggle('chat-hidden');
+                toggleChatWindow();
             }
+        }
+
+        function toggleChatWindow() {
+            const chatWin = document.getElementById('floating-chat-window');
+            chatWin.classList.toggle('chat-hidden');
         }
 
         playBtn.addEventListener('click', () => {
