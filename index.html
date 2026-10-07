@@ -185,7 +185,6 @@
         }
         .vol-btn:hover { color: #ffffff; }
 
-        /* Slider Έντασης */
         .vol-slider {
             -webkit-appearance: none;
             appearance: none;
@@ -209,19 +208,8 @@
             cursor: pointer;
         }
 
-        .vol-slider::-moz-range-thumb {
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-            background: #ffea00;
-            box-shadow: 0 0 5px #ffea00;
-            cursor: pointer;
-            border: none;
-        }
-
         audio.hidden-player { display: none; }
 
-        /* Ετικέτα Now Playing - Φωτεινό Κίτρινο */
         .now-playing-label {
             font-size: 1.3rem;
             color: #ffea00;
@@ -239,7 +227,6 @@
             margin-bottom: 0.4rem;
         }
 
-        /* Released Year - Λευκό */
         .release-date {
             font-size: 1.05rem;
             color: #ffffff;
@@ -249,7 +236,6 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
-        /* Καλλιτέχνης - Εντονότατο Κίτρινο */
         .track-artist {
             font-size: 1.2rem;
             letter-spacing: 2px;
@@ -298,23 +284,25 @@
             height: 26px;
         }
 
-        /* Discord Banner - Σταθερά Κάτω Δεξιά */
+        /* Discord Fixed Banner - Κάτω Δεξιά */
         .discord-bottom-right {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 9999;
-            width: 85px; /* Μικρό μέγεθος */
-            border-radius: 10px;
+            width: 90px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7);
-            border: 2px solid rgba(255, 255, 255, 0.25);
-            transition: transform 0.2s ease;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 180, 255, 0.4);
+            border: 2px solid rgba(0, 200, 255, 0.6);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
             display: block;
+            background: #030a21;
         }
 
         .discord-bottom-right:hover {
             transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.9), 0 0 22px rgba(0, 210, 255, 0.8);
         }
 
         .discord-bottom-right img {
@@ -323,7 +311,6 @@
             display: block;
         }
 
-        /* Ενότητα Recently Played */
         .history-container {
             width: 100%;
             max-width: 420px;
@@ -371,7 +358,7 @@
             .track-title { font-size: 1.5rem; }
             .now-playing-label { font-size: 1.1rem; }
             .vol-slider { width: 45px; }
-            .discord-bottom-right { width: 65px; bottom: 12px; right: 12px; }
+            .discord-bottom-right { width: 70px; bottom: 12px; right: 12px; }
         }
     </style>
 </head>
@@ -421,7 +408,6 @@
                 <div class="progress-fill" id="progressFill"></div>
             </div>
             
-            <!-- Controls Έντασης Ήχου -->
             <div class="volume-container">
                 <button class="vol-btn" id="volBtn" title="Σίγαση/Ενεργοποίηση">🔊</button>
                 <input type="range" class="vol-slider" id="volSlider" min="0" max="1" step="0.01" value="1" title="Ένταση ήχου">
@@ -461,9 +447,9 @@
         </a>
     </div>
 
-    <!-- Discord Banner 3.png - Κάτω Δεξιά στη Γωνία -->
-    <a href="https://discord.gg/YOUR_INVITE_LINK" target="_blank" rel="noopener noreferrer" class="discord-bottom-right" title="Στείλτε μας μήνυμα στο Discord!">
-        <img src="3.png" alt="Discord Banner">
+    <!-- Discord Banner (Ενσωματωμένη εικόνα που φορτώνει ΠΑΝΤΑ χωρίς εξωτερικά αρχεία) -->
+    <a href="https://discord.gg/pgT58ADfB" target="_blank" rel="noopener noreferrer" class="discord-bottom-right" title="Στείλτε μας μήνυμα στο Discord!">
+        <img src="3.png" onerror="if(!this.dataset.fallback){this.dataset.fallback=true;this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 300 450\'><rect width=\'300\' height=\'450\' fill=\'%23071330\'/><text x=\'150\' y=\'70\' fill=\'%23ffffff\' font-family=\'sans-serif\' font-size=\'32\' font-weight=\'bold\' text-anchor=\'middle\'>Send us a</text><text x=\'150\' y=\'125\' fill=\'%2300b0ff\' font-family=\'sans-serif\' font-size=\'40\' font-weight=\'bold\' text-anchor=\'middle\'>Message</text><circle cx=\'150\' cy=\'270\' r=\'90\' fill=\'%235865F2\'/><path d=\'M115 255c5-8 15-12 35-12s30 4 35 12c0 0 10-5 15-2-10-18-25-22-35-22s-25 4-35 22c5-3 15 2 15 2zm8 15a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm54 0a8 8 0 1 0 0-16 8 8 0 0 0 0 16z\' fill=\'%23ffffff\'/><path d=\'M190 350l60-40-20-15-40 55z\' fill=\'%23ffffff\'/></svg>';}" alt="Discord Banner">
     </a>
 
     <!-- Λίστα Προηγούμενων Τραγουδιών (4 tracks) -->
@@ -517,7 +503,6 @@
             }
         });
 
-        // Ενημέρωση εικονιδίου ανάλογα με την ένταση
         function updateVolIcon(val) {
             if (val === 0) {
                 volBtn.innerText = '🔇';
@@ -607,7 +592,6 @@
 
                                 currentTrackFull = rawTitle;
 
-                                // Ενημέρωση Released Year
                                 const yearMatch = rawTitle.match(/\((\d{4})\)/);
                                 if (yearMatch && yearMatch[1]) {
                                     document.getElementById('song-release').innerText = 'Released Year: ' + yearMatch[1];
