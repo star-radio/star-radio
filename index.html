@@ -414,7 +414,7 @@
             </div>
         </div>
 
-        <audio id="audio" class="hidden-player" preload="none">
+        <audio id="audio" class="hidden-player" preload="none" crossorigin="anonymous">
             <source src="https://stream.zeno.fm/wqreogixiotuv" type="audio/mpeg">
         </audio>
     </div>
@@ -463,23 +463,32 @@
         const volBtn = document.getElementById('volBtn');
         const volSlider = document.getElementById('volSlider');
 
+        const STREAM_URL = 'https://stream.zeno.fm/wqreogixiotuv';
         const STREAM_KEY = 'wqreogixiotuv';
         let historyItems = [];
         let currentTrackFull = "";
         let lastVolume = 1;
 
+        // Play / Pause Logic με δυναμικό reload stream
         playBtn.addEventListener('click', () => {
             if (audio.paused) {
-                audio.src = "https://stream.zeno.fm/wqreogixiotuv";
+                // Προσθήκη timestamp για αποφυγή cache του browser
+                audio.src = STREAM_URL + '?nocache=' + new Date().getTime();
+                audio.load();
                 audio.play().then(() => {
                     playBtn.innerText = '❚❚';
-                }).catch(err => console.error("Play error:", err));
+                }).catch(err => {
+                    console.error("Play error:", err);
+                    playBtn.innerText = '▶';
+                });
             } else {
                 audio.pause();
+                audio.src = ''; // Διακόπτει τη σύνδεση για εξοικονόμηση bandwidth
                 playBtn.innerText = '▶';
             }
         });
 
+        // Ένταση ήχου
         volSlider.addEventListener('input', (e) => {
             const val = parseFloat(e.target.value);
             audio.volume = val;
@@ -509,11 +518,14 @@
             }
         }
 
+        // Χρονόμετρο αναπαραγωγής
         audio.addEventListener('timeupdate', () => {
-            const m = Math.floor(audio.currentTime / 60);
-            const s = Math.floor(audio.currentTime % 60);
-            timeDisp.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-            progressFill.style.width = ((audio.currentTime % 60) * (100 / 60)) + '%';
+            if (!audio.paused) {
+                const m = Math.floor(audio.currentTime / 60);
+                const s = Math.floor(audio.currentTime % 60);
+                timeDisp.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+                progressFill.style.width = ((audio.currentTime % 60) * (100 / 60)) + '%';
+            }
         });
 
         function renderHistoryUI() {
@@ -533,9 +545,11 @@
             `).join('');
         }
 
+        // Ανάκτηση τίτλου τραγουδιού & ιστορικού από Zeno API
         async function fetchSongHistoryAPI() {
             try {
                 const res = await fetch(`https://api.zeno.fm/mounts/metadata/history/${STREAM_KEY}`);
+                if (!res.ok) return;
                 const data = await res.json();
                 
                 if (data && data.length > 0) {
@@ -553,3 +567,19 @@
                                 artist: parts.length > 1 ? parts[0] : 'STAR RADIO',
                                 title: parts.length > 1 ? parts.slice(1).join(' - ') : clean
                             };
+                        });
+                        renderHistoryUI();
+                    }
+                }
+            } catch (err) {
+                console.log("History fetch failed:", err);
+            }
+        }
+
+        function updateMetadataUI(rawTitle) {
+            if (!rawTitle || rawTitle.trim() === "") return;
+            currentTrackFull = rawTitle;
+
+            const yearMatch = rawTitle.match(/\((\d{4})\)/);
+            if (yearMatch && yearMatch[1]) {
+                document.getElementById('song-release').innerText = 'Released Year: ' + yearMatch
