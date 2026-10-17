@@ -113,11 +113,13 @@
             height: auto;
             margin-bottom: -18px;
             z-index: 1;
+            pointer-events: none; /* Διορθώνει τομπλοκάρισμα κλικ */
             filter: drop-shadow(0px 6px 10px rgba(0,0,0,0.8));
         }
 
         /* Custom Μεταλλικός Player */
         .custom-player-bar {
+            position: relative;
             width: 100%;
             height: 46px;
             background: linear-gradient(180deg, #7a7a7a 0%, #333333 50%, #1a1a1a 100%);
@@ -128,7 +130,7 @@
             align-items: center;
             padding: 0 16px;
             gap: 10px;
-            z-index: 2;
+            z-index: 10; /* Εξασφαλίζει ότι είναι πάνω από τα πάντα */
         }
 
         .play-btn {
@@ -138,6 +140,7 @@
             font-size: 1.1rem;
             cursor: pointer;
             transition: color 0.2s;
+            z-index: 11;
         }
         .play-btn:hover { color: #ffffff; }
 
@@ -169,6 +172,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            z-index: 11;
         }
 
         .vol-btn {
@@ -195,6 +199,7 @@
             outline: none;
             border: 1px solid #555;
             cursor: pointer;
+            z-index: 11;
         }
 
         .vol-slider::-webkit-slider-thumb {
@@ -289,7 +294,7 @@
             justify-content: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            background-color: #ffffff; /* Λευκό φόντο στο κουμπί ώστε το εικονίδιο να ξεχωρίζει */
+            background-color: #ffffff;
         }
 
         .social-icon-img {
@@ -338,6 +343,123 @@
             font-weight: bold;
         }
 
+        /* Σταθερό εικονίδιο Discord κάτω δεξιά */
+        .discord-float {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            width: 90px;
+            z-index: 1000;
+            display: block;
+            line-height: 0;
+            transition: transform 0.2s;
+            transform-origin: bottom right;
+        }
+
+        .discord-float:hover {
+            transform: scale(1.12);
+        }
+
+        .discord-float img {
+            width: 100%;
+            height: auto;
+            max-height: 40vh;
+            object-fit: contain;
+            display: block;
+            border-radius: 14px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Φόρμα μηνύματος */
+        .msg-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 2000;
+        }
+        .msg-overlay.open { display: flex; }
+
+        .msg-box {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(180deg, #0b1450 0%, #050a2a 100%);
+            border: 2px solid #5865f2;
+            border-radius: 18px;
+            padding: 24px 20px 18px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+            text-align: center;
+        }
+
+        .msg-close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .msg-title {
+            font-size: 1.5rem;
+            color: #38bdf8;
+            margin-bottom: 14px;
+            font-weight: normal;
+        }
+
+        .msg-box input[type="text"],
+        .msg-box textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #5865f2;
+            background: #0a0f33;
+            color: #ffffff;
+            font-family: sans-serif;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        .msg-send {
+            width: 100%;
+            padding: 11px;
+            border: none;
+            border-radius: 10px;
+            background: #5865f2;
+            color: #ffffff;
+            font-family: 'Audiowide', cursive, sans-serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .msg-send:hover { background: #4752c4; }
+        .msg-send:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .msg-status {
+            min-height: 1.2em;
+            margin-top: 10px;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+        }
+        .msg-status.ok { color: #4ade80; }
+        .msg-status.err { color: #fca5a5; }
+
+        .msg-join {
+            display: inline-block;
+            margin-top: 8px;
+            font-family: sans-serif;
+            font-size: 0.85rem;
+            color: #93c5fd;
+        }
+
         @media (max-width: 480px) {
             .logo-main { font-size: 2.8rem; }
             .star { font-size: 1.8rem; }
@@ -345,6 +467,7 @@
             .track-title { font-size: 1.5rem; }
             .now-playing-label { font-size: 1.1rem; }
             .vol-slider { width: 45px; }
+            .discord-float { width: 70px; right: 12px; bottom: 12px; }
         }
     </style>
 </head>
@@ -426,11 +549,8 @@
         <a href="https://www.instagram.com/star.radio.official/" target="_blank" rel="noopener noreferrer" class="social-link" title="Ακολουθήστε μας στο Instagram">
             <div class="social-badge">
                 <svg class="social-icon-img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Rounded Camera Outer Border -->
                     <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5" fill="none" stroke="#4a0013" stroke-width="2.2"/>
-                    <!-- Center Circle Lens -->
                     <circle cx="12" cy="12" r="4.2" fill="none" stroke="#4a0013" stroke-width="2.2"/>
-                    <!-- Top Right Flash Dot -->
                     <circle cx="17.3" cy="6.7" r="1.3" fill="#4a0013"/>
                 </svg>
             </div>
@@ -441,6 +561,28 @@
     <div class="history-container" id="historyContainer">
         <div class="history-title">Recently Played</div>
         <ul class="history-list" id="historyList"></ul>
+    </div>
+
+    <!-- Σταθερό εικονίδιο Discord (κάτω δεξιά) -->
+    <a href="#" class="discord-float" id="discordBtn" title="Στείλε μας μήνυμα στο Discord" aria-label="Στείλε μας μήνυμα">
+        <img src="discord.png" alt="Send us a Message - Discord">
+    </a>
+
+    <!-- Φόρμα μηνύματος προς το Discord (webhook) -->
+    <div class="msg-overlay" id="msgOverlay" aria-hidden="true">
+        <div class="msg-box" role="dialog" aria-labelledby="msgTitle">
+            <button type="button" class="msg-close" id="msgClose" aria-label="Κλείσιμο">✕</button>
+            <h2 class="msg-title" id="msgTitle">Send us a Message</h2>
+            <form id="msgForm" autocomplete="off">
+                <input type="text" id="msgName" maxlength="40" placeholder="Το όνομα σου" required>
+                <textarea id="msgText" maxlength="500" rows="5" placeholder="Γράψε το μήνυμά σου..." required></textarea>
+                <!-- Honeypot κατά των bots -->
+                <input type="text" id="msgWebsite" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;">
+                <button type="submit" class="msg-send" id="msgSend">Αποστολή</button>
+                <div class="msg-status" id="msgStatus"></div>
+            </form>
+            <a class="msg-join" href="https://discord.gg/pgT58ADfB" target="_blank" rel="noopener noreferrer">Μπες στο Discord server μας</a>
+        </div>
     </div>
 
     <script>
@@ -459,8 +601,11 @@
         // Play/Pause Control
         playBtn.addEventListener('click', () => {
             if (audio.paused) {
-                audio.play();
-                playBtn.innerText = '❚❚';
+                audio.play().then(() => {
+                    playBtn.innerText = '❚❚';
+                }).catch(e => {
+                    console.error("Autoplay blocked or stream error:", e);
+                });
             } else {
                 audio.pause();
                 playBtn.innerText = '▶';
@@ -604,6 +749,71 @@
                 document.getElementById('song-title').innerText = 'Star Radio Live';
             }
         }
+
+        // ===== Φόρμα μηνύματος προς Discord (webhook) =====
+        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1557373269688975491/OXFTbTWxYESmYek2l5CDLdARiGM21jWRe1O5DoZcPaoDfnRSV-syt5bMT3tHrTPTGFwx';
+        const COOLDOWN_MS = 30000;
+
+        const discordBtn = document.getElementById('discordBtn');
+        const msgOverlay = document.getElementById('msgOverlay');
+        const msgClose = document.getElementById('msgClose');
+        const msgForm = document.getElementById('msgForm');
+        const msgStatus = document.getElementById('msgStatus');
+        const msgSend = document.getElementById('msgSend');
+
+        function openMsg() { msgOverlay.classList.add('open'); msgOverlay.setAttribute('aria-hidden', 'false'); }
+        function closeMsg() { msgOverlay.classList.remove('open'); msgOverlay.setAttribute('aria-hidden', 'true'); }
+
+        discordBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openMsg();
+        });
+        msgClose.addEventListener('click', closeMsg);
+        msgOverlay.addEventListener('click', (e) => { if (e.target === msgOverlay) closeMsg(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMsg(); });
+
+        msgForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            msgStatus.className = 'msg-status';
+
+            if (document.getElementById('msgWebsite').value) return;
+
+            const last = parseInt(localStorage.getItem('lastMsgTime') || '0', 10);
+            if (Date.now() - last < COOLDOWN_MS) {
+                msgStatus.classList.add('err');
+                msgStatus.innerText = 'Περίμενε λίγο πριν στείλεις νέο μήνυμα.';
+                return;
+            }
+
+            const name = document.getElementById('msgName').value.trim().slice(0, 40);
+            const text = document.getElementById('msgText').value.trim().slice(0, 500);
+            if (!name || !text) return;
+
+            msgSend.disabled = true;
+            msgStatus.innerText = 'Αποστολή...';
+
+            try {
+                const res = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: 'Star Radio Website',
+                        content: `**${name}** (από το site):\n${text}`,
+                        allowed_mentions: { parse: [] }
+                    })
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                localStorage.setItem('lastMsgTime', String(Date.now()));
+                msgForm.reset();
+                msgStatus.classList.add('ok');
+                msgStatus.innerText = 'Το μήνυμά σου στάλθηκε! Ευχαριστούμε.';
+            } catch (err) {
+                msgStatus.classList.add('err');
+                msgStatus.innerText = 'Η αποστολή απέτυχε. Δοκίμασε ξανά αργότερα.';
+            } finally {
+                msgSend.disabled = false;
+            }
+        });
 
         // Αρχική εκτέλεση
         fetchSongHistoryAPI();
