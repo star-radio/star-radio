@@ -16,22 +16,9 @@
             padding: 0; 
         }
 
-        html {
-            height: 100%;
-            background-color: #0f172a;
-        }
-
         body {
             font-family: 'Audiowide', cursive, sans-serif;
-            background: #0f172a !important;
-            background-image: 
-                radial-gradient(at 10% 10%, rgba(56, 189, 248, 0.35) 0px, transparent 50%),
-                radial-gradient(at 90% 10%, rgba(99, 102, 241, 0.4) 0px, transparent 50%),
-                radial-gradient(at 50% 50%, rgba(139, 92, 246, 0.3) 0px, transparent 65%),
-                radial-gradient(at 10% 90%, rgba(14, 165, 233, 0.35) 0px, transparent 50%),
-                radial-gradient(at 90% 90%, rgba(30, 27, 75, 0.85) 0px, transparent 50%) !important;
-            background-attachment: fixed !important;
-            background-size: cover !important;
+            background: radial-gradient(circle at center, #930628 0%, #4a0013 65%, #1f0007 100%);
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -42,14 +29,13 @@
             padding: 20px;
             text-align: center;
             overflow-x: hidden;
-            position: relative;
         }
 
         .tagline {
             font-size: 0.85rem;
             letter-spacing: 2.5px;
             margin-bottom: 1.2rem;
-            color: #94a3b8;
+            color: #e2a8be;
             text-shadow: 0 0 5px rgba(0,0,0,0.5);
             text-transform: uppercase;
         }
@@ -68,6 +54,7 @@
             gap: 15px;
         }
 
+        /* 3D Αστέρια */
         .star {
             color: #ffffff;
             font-size: 2.5rem;
@@ -80,6 +67,7 @@
                 0 8px 12px rgba(0, 0, 0, 0.8);
         }
 
+        /* 3D Λευκό Λογότυπο STAR RADIO */
         .logo-main {
             font-size: 4rem;
             font-weight: 900;
@@ -108,6 +96,7 @@
             text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
         }
 
+        /* Container Γραφικών & Player */
         .player-wrapper {
             position: relative;
             width: 100%;
@@ -118,6 +107,7 @@
             align-items: center;
         }
 
+        /* SVG Γραφικά: Κασέτα & CDs */
         .media-graphics-img {
             width: 85%;
             height: auto;
@@ -126,6 +116,7 @@
             filter: drop-shadow(0px 6px 10px rgba(0,0,0,0.8));
         }
 
+        /* Custom Μεταλλικός Player */
         .custom-player-bar {
             width: 100%;
             height: 46px;
@@ -147,7 +138,6 @@
             font-size: 1.1rem;
             cursor: pointer;
             transition: color 0.2s;
-            width: 30px;
         }
         .play-btn:hover { color: #ffffff; }
 
@@ -170,10 +160,11 @@
         .progress-fill {
             width: 0%;
             height: 100%;
-            background: linear-gradient(90deg, #38bdf8, #818cf8);
-            box-shadow: 0 0 8px #38bdf8;
+            background: linear-gradient(90deg, #ff007f, #be123c);
+            box-shadow: 0 0 8px #ff007f;
         }
 
+        /* Περιοχή Controls Έντασης */
         .volume-container {
             display: flex;
             align-items: center;
@@ -193,6 +184,7 @@
         }
         .vol-btn:hover { color: #ffffff; }
 
+        /* Slider Έντασης */
         .vol-slider {
             -webkit-appearance: none;
             appearance: none;
@@ -216,8 +208,19 @@
             cursor: pointer;
         }
 
+        .vol-slider::-moz-range-thumb {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #ffea00;
+            box-shadow: 0 0 5px #ffea00;
+            cursor: pointer;
+            border: none;
+        }
+
         audio.hidden-player { display: none; }
 
+        /* Ετικέτα Now Playing - Φωτεινό Κίτρινο */
         .now-playing-label {
             font-size: 1.3rem;
             color: #ffea00;
@@ -235,6 +238,7 @@
             margin-bottom: 0.4rem;
         }
 
+        /* Released Year - Λευκό */
         .release-date {
             font-size: 1.05rem;
             color: #ffffff;
@@ -244,6 +248,7 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
+        /* Καλλιτέχνης - Εντονότατο Κίτρινο */
         .track-artist {
             font-size: 1.2rem;
             letter-spacing: 2px;
@@ -254,6 +259,7 @@
             margin-bottom: 0.8rem;
         }
 
+        /* Social Media Links Container */
         .social-container {
             display: flex;
             align-items: center;
@@ -283,7 +289,7 @@
             justify-content: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            background-color: #ffffff;
+            background-color: #ffffff; /* Λευκό φόντο στο κουμπί ώστε το εικονίδιο να ξεχωρίζει */
         }
 
         .social-icon-img {
@@ -291,27 +297,7 @@
             height: 26px;
         }
 
-        .discord-bottom-right {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            width: 75px;
-            height: 75px;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.8), 0 0 15px rgba(88, 101, 242, 0.5);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-            display: block;
-            background: #5865F2;
-        }
-
-        .discord-bottom-right:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.9), 0 0 22px rgba(88, 101, 242, 0.8);
-        }
-
+        /* Ενότητα Recently Played */
         .history-container {
             width: 100%;
             max-width: 420px;
@@ -340,11 +326,10 @@
         .history-item {
             font-size: 0.85rem;
             color: #ffffff;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(0, 0, 0, 0.3);
             padding: 8px 14px;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             letter-spacing: 1px;
         }
 
@@ -360,7 +345,6 @@
             .track-title { font-size: 1.5rem; }
             .now-playing-label { font-size: 1.1rem; }
             .vol-slider { width: 45px; }
-            .discord-bottom-right { width: 60px; height: 60px; bottom: 12px; right: 12px; }
         }
     </style>
 </head>
@@ -378,6 +362,7 @@
     </div>
 
     <div class="player-wrapper">
+        <!-- SVG Γραφικά: Κασέτα + CDs -->
         <svg class="media-graphics-img" viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <radialGradient id="gold" cx="50%" cy="50%" r="50%">
@@ -401,6 +386,7 @@
             <g transform="translate(225, 14)"><circle cx="24" cy="24" r="23" fill="url(#pink)" stroke="#ffb3c1" stroke-width="1"/><circle cx="24" cy="24" r="8" fill="#ffe4e6" opacity="0.6"/><circle cx="24" cy="24" r="3.5" fill="#200007"/></g>
         </svg>
 
+        <!-- Custom Μεταλλική Μπάρα Player -->
         <div class="custom-player-bar">
             <button class="play-btn" id="playBtn">▶</button>
             <span class="time-display" id="timeDisp">00:00</span>
@@ -408,13 +394,14 @@
                 <div class="progress-fill" id="progressFill"></div>
             </div>
             
+            <!-- Controls Έντασης Ήχου -->
             <div class="volume-container">
                 <button class="vol-btn" id="volBtn" title="Σίγαση/Ενεργοποίηση">🔊</button>
                 <input type="range" class="vol-slider" id="volSlider" min="0" max="1" step="0.01" value="1" title="Ένταση ήχου">
             </div>
         </div>
 
-        <audio id="audio" class="hidden-player" preload="none" crossorigin="anonymous">
+        <audio id="audio" class="hidden-player" preload="none">
             <source src="https://stream.zeno.fm/wqreogixiotuv" type="audio/mpeg">
         </audio>
     </div>
@@ -424,32 +411,33 @@
     <div class="release-date" id="song-release">Released Year: ----</div>
     <div class="track-artist" id="song-artist">STAR RADIO</div>
 
+    <!-- Social Media Links (TikTok & Instagram) -->
     <div class="social-container">
+        <!-- TikTok -->
         <a href="https://www.tiktok.com/@star_radio_?lang=el-GR" target="_blank" rel="noopener noreferrer" class="social-link" title="Ακολουθήστε μας στο TikTok">
             <div class="social-badge">
                 <svg class="social-icon-img" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#0f172a" d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25V349.38A162.55 162.55 0 1 1 180 188.31V258a92.43 92.43 0 1 0 70.36 89.86V0h69.64a139.81 139.81 0 0 0 123 120.59z"/>
+                    <path fill="#4a0013" d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25V349.38A162.55 162.55 0 1 1 180 188.31V258a92.43 92.43 0 1 0 70.36 89.86V0h69.64a139.81 139.81 0 0 0 123 120.59z"/>
                 </svg>
             </div>
         </a>
 
+        <!-- Instagram -->
         <a href="https://www.instagram.com/star.radio.official/" target="_blank" rel="noopener noreferrer" class="social-link" title="Ακολουθήστε μας στο Instagram">
             <div class="social-badge">
                 <svg class="social-icon-img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5" fill="none" stroke="#0f172a" stroke-width="2.2"/>
-                    <circle cx="12" cy="12" r="4.2" fill="none" stroke="#0f172a" stroke-width="2.2"/>
-                    <circle cx="17.3" cy="6.7" r="1.3" fill="#0f172a"/>
+                    <!-- Rounded Camera Outer Border -->
+                    <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5" fill="none" stroke="#4a0013" stroke-width="2.2"/>
+                    <!-- Center Circle Lens -->
+                    <circle cx="12" cy="12" r="4.2" fill="none" stroke="#4a0013" stroke-width="2.2"/>
+                    <!-- Top Right Flash Dot -->
+                    <circle cx="17.3" cy="6.7" r="1.3" fill="#4a0013"/>
                 </svg>
             </div>
         </a>
     </div>
 
-    <a href="https://discord.gg/pgT58ADfB" target="_blank" rel="noopener noreferrer" class="discord-bottom-right" title="Στείλτε μας μήνυμα στο Discord!">
-        <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; display: block; padding: 12px;">
-            <path d="M81.3 23.2A75.7 75.7 0 0 0 63 17.5a.3.3 0 0 0-.3.1 52.8 52.8 0 0 0-2.3 4.8 70 70 0 0 0-20.8 0 48.3 48.3 0 0 0-2.4-4.8.3.3 0 0 0-.3-.1A75.2 75.2 0 0 0 24.6 23.2a.3.3 0 0 0-.1.1C11.2 43.2 7.5 62.6 9.3 81.8a.3.3 0 0 0 .1.2 75.9 75.9 0 0 0 22.9 11.6.3.3 0 0 0 .3-.1c1.8-2.4 3.3-5 4.7-7.6.1-.2 0-.4-.3-.5a50 50 0 0 1-7.1-3.4.3.3 0 0 1 0-.5c.5-.4 1-.7 1.5-1.1a.3.3 0 0 1 .3 0c14.8 6.8 30.8 6.8 45.4 0a.3.3 0 0 1 .3 0c.5.4 1 .7 1.5 1.1a.3.3 0 0 1 0 .5 48.1 48.1 0 0 1-7.1 3.4.3.3 0 0 0-.2.5c1.4 2.6 3 5.2 4.7 7.6.1.2.2.2.4.1a75.7 75.7 0 0 0 23-11.6.3.3 0 0 0 .1-.2c2.2-22.2-3.7-41.5-16-60.8a.3.3 0 0 0-.1-.1zM38 67c-4.4 0-8-4-8-9s3.5-9 8-9 8 4 8 9-3.5 9-8 9zm28 0c-4.4 0-8-4-8-9s3.5-9 8-9 8 4 8 9-3.5 9-8 9z" fill="#ffffff"/>
-        </svg>
-    </a>
-
+    <!-- Λίστα Προηγούμενων Τραγουδιών (4 tracks) -->
     <div class="history-container" id="historyContainer">
         <div class="history-title">Recently Played</div>
         <ul class="history-list" id="historyList"></ul>
@@ -463,38 +451,30 @@
         const volBtn = document.getElementById('volBtn');
         const volSlider = document.getElementById('volSlider');
 
-        const STREAM_URL = 'https://stream.zeno.fm/wqreogixiotuv';
         const STREAM_KEY = 'wqreogixiotuv';
         let historyItems = [];
         let currentTrackFull = "";
         let lastVolume = 1;
 
-        // Play / Pause Logic με δυναμικό reload stream
+        // Play/Pause Control
         playBtn.addEventListener('click', () => {
             if (audio.paused) {
-                // Προσθήκη timestamp για αποφυγή cache του browser
-                audio.src = STREAM_URL + '?nocache=' + new Date().getTime();
-                audio.load();
-                audio.play().then(() => {
-                    playBtn.innerText = '❚❚';
-                }).catch(err => {
-                    console.error("Play error:", err);
-                    playBtn.innerText = '▶';
-                });
+                audio.play();
+                playBtn.innerText = '❚❚';
             } else {
                 audio.pause();
-                audio.src = ''; // Διακόπτει τη σύνδεση για εξοικονόμηση bandwidth
                 playBtn.innerText = '▶';
             }
         });
 
-        // Ένταση ήχου
+        // Ρύθμιση έντασης μέσω του slider
         volSlider.addEventListener('input', (e) => {
             const val = parseFloat(e.target.value);
             audio.volume = val;
             updateVolIcon(val);
         });
 
+        // Toggle Mute / Unmute με κλικ στο εικονίδιο
         volBtn.addEventListener('click', () => {
             if (audio.volume > 0) {
                 lastVolume = audio.volume;
@@ -508,6 +488,7 @@
             }
         });
 
+        // Ενημέρωση εικονιδίου ανάλογα με την ένταση
         function updateVolIcon(val) {
             if (val === 0) {
                 volBtn.innerText = '🔇';
@@ -518,14 +499,11 @@
             }
         }
 
-        // Χρονόμετρο αναπαραγωγής
         audio.addEventListener('timeupdate', () => {
-            if (!audio.paused) {
-                const m = Math.floor(audio.currentTime / 60);
-                const s = Math.floor(audio.currentTime % 60);
-                timeDisp.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-                progressFill.style.width = ((audio.currentTime % 60) * (100 / 60)) + '%';
-            }
+            const m = Math.floor(audio.currentTime / 60);
+            const s = Math.floor(audio.currentTime % 60);
+            timeDisp.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+            progressFill.style.width = ((audio.currentTime % 60) * (100 / 60)) + '%';
         });
 
         function renderHistoryUI() {
@@ -545,41 +523,91 @@
             `).join('');
         }
 
-        // Ανάκτηση τίτλου τραγουδιού & ιστορικού από Zeno API
+        // 1. Άμεση ανάκτηση των 4 τελευταίων τραγουδιών από το API της Zeno.fm
         async function fetchSongHistoryAPI() {
             try {
                 const res = await fetch(`https://api.zeno.fm/mounts/metadata/history/${STREAM_KEY}`);
-                if (!res.ok) return;
                 const data = await res.json();
                 
-                if (data && data.length > 0) {
-                    const current = data[0];
-                    if (current && current.streamTitle) {
-                        updateMetadataUI(current.streamTitle);
-                    }
-
-                    if (data.length > 1) {
-                        const pastSongs = data.slice(1, 5);
-                        historyItems = pastSongs.map(item => {
-                            const clean = item.streamTitle.replace(/\s*\(\d{4}\)/, '');
-                            const parts = clean.split(' - ');
-                            return {
-                                artist: parts.length > 1 ? parts[0] : 'STAR RADIO',
-                                title: parts.length > 1 ? parts.slice(1).join(' - ') : clean
-                            };
-                        });
-                        renderHistoryUI();
-                    }
+                if (data && data.length > 1) {
+                    const pastSongs = data.slice(1, 5);
+                    historyItems = pastSongs.map(item => {
+                        const clean = item.streamTitle.replace(/\s*\(\d{4}\)/, '');
+                        const parts = clean.split(' - ');
+                        return {
+                            artist: parts.length > 1 ? parts[0] : 'STAR RADIO',
+                            title: parts.length > 1 ? parts.slice(1).join(' - ') : clean
+                        };
+                    });
+                    renderHistoryUI();
                 }
             } catch (err) {
-                console.log("History fetch failed:", err);
+                console.error("Σφάλμα ιστορικού:", err);
             }
         }
 
-        function updateMetadataUI(rawTitle) {
-            if (!rawTitle || rawTitle.trim() === "") return;
-            currentTrackFull = rawTitle;
+        // 2. Ζωντανό stream & ενημέρωση όταν αλλάζει το τραγούδι στον αέρα
+        async function fetchNowPlaying() {
+            try {
+                const response = await fetch(`https://api.zeno.fm/mounts/metadata/subscribe/${STREAM_KEY}`);
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
 
-            const yearMatch = rawTitle.match(/\((\d{4})\)/);
-            if (yearMatch && yearMatch[1]) {
-                document.getElementById('song-release').innerText = 'Released Year: ' + yearMatch
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value);
+                    
+                    if (chunk.includes('streamTitle')) {
+                        const match = chunk.match(/"streamTitle":"([^"]+)"/);
+                        if (match && match[1]) {
+                            const rawTitle = match[1];
+
+                            if (rawTitle !== currentTrackFull && rawTitle.trim() !== "") {
+                                
+                                if (currentTrackFull !== "") {
+                                    const prevArtist = document.getElementById('song-artist').innerText;
+                                    const prevTitle = document.getElementById('song-title').innerText;
+                                    
+                                    if (prevTitle !== "Loading..." && prevTitle !== "Star Radio Live") {
+                                        historyItems.unshift({ artist: prevArtist, title: prevTitle });
+                                        if (historyItems.length > 4) historyItems.pop();
+                                        renderHistoryUI();
+                                    }
+                                }
+
+                                currentTrackFull = rawTitle;
+
+                                // Ενημέρωση Released Year
+                                const yearMatch = rawTitle.match(/\((\d{4})\)/);
+                                if (yearMatch && yearMatch[1]) {
+                                    document.getElementById('song-release').innerText = 'Released Year: ' + yearMatch[1];
+                                } else {
+                                    document.getElementById('song-release').innerText = 'Released Year: ----';
+                                }
+
+                                const cleanTitle = rawTitle.replace(/\s*\(\d{4}\)/, '');
+                                const parts = cleanTitle.split(' - ');
+                                
+                                if (parts.length > 1) {
+                                    document.getElementById('song-artist').innerText = parts[0];
+                                    document.getElementById('song-title').innerText = parts.slice(1).join(' - ');
+                                } else {
+                                    document.getElementById('song-title').innerText = cleanTitle;
+                                    document.getElementById('song-artist').innerText = 'STAR RADIO';
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                document.getElementById('song-title').innerText = 'Star Radio Live';
+            }
+        }
+
+        // Αρχική εκτέλεση
+        fetchSongHistoryAPI();
+        fetchNowPlaying();
+    </script>
+</body>
+</html>
