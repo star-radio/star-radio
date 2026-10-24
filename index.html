@@ -122,15 +122,11 @@
             100% { opacity: 1; transform: scale(1); }
         }
 
-        /* Player Grid Layout */
+        /* Player Layout - Single Column Stack */
         .player-grid {
-            display: grid;
-            grid-template-columns: 1fr 360px;
+            display: flex;
+            flex-direction: column;
             gap: 25px;
-        }
-
-        @media (max-width: 850px) {
-            .player-grid { grid-template-columns: 1fr; }
         }
 
         /* Center Player Card */
@@ -146,6 +142,7 @@
             align-items: center;
             text-align: center;
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            width: 100%;
         }
 
         .cover-art-container {
@@ -341,6 +338,7 @@
             border-radius: 24px;
             padding: 25px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            width: 100%;
         }
 
         .history-title {
@@ -354,11 +352,18 @@
             gap: 8px;
         }
 
+        /* 2x2 Grid Layout Layout */
         .history-list {
             list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .history-list {
+                grid-template-columns: 1fr;
+            }
         }
 
         .history-item {
@@ -366,20 +371,21 @@
             align-items: center;
             gap: 12px;
             background: rgba(0, 0, 0, 0.35);
-            padding: 10px 12px;
-            border-radius: 14px;
+            padding: 12px;
+            border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.08);
             text-align: left;
         }
 
         .history-cover {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
             object-fit: cover;
             flex-shrink: 0;
             border: 1px solid rgba(255, 255, 255, 0.2);
             background-color: #200007;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
         .history-details {
@@ -405,7 +411,7 @@
             text-overflow: ellipsis;
         }
 
-        /* Discord Floating Button (Bottom Right) */
+        /* Discord Floating Button */
         .discord-float {
             position: fixed;
             right: 20px;
@@ -437,7 +443,7 @@
             display: block;
         }
 
-        /* Modal Overlay for Discord Form */
+        /* Modal Overlay */
         .msg-overlay {
             position: fixed;
             inset: 0;
@@ -526,7 +532,6 @@
     </style>
 
     <script>
-        // High Quality SVG Fallback for Logo
         const FALLBACK_COVER = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="300" height="300" fill="%234a0013"/><circle cx="150" cy="150" r="120" fill="%23930628" stroke="%23ffea00" stroke-width="4"/><text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="28" fill="%23ffffff">STAR RADIO</text><text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="%23ffea00">LIVE</text></svg>';
         
         function handleImgError(img) {
@@ -553,7 +558,7 @@
       </div>
     </header>
 
-    <!-- Main Grid -->
+    <!-- Main Stack -->
     <main class="player-grid">
       
       <!-- Player Card -->
@@ -634,11 +639,11 @@
 
       </section>
 
-      <!-- Sidebar Recently Played -->
+      <!-- Recently Played Section at Bottom -->
       <aside class="history-card">
         <div class="history-title"><span>🕒</span> Recently Played</div>
         <ul class="history-list" id="historyList">
-            <li style="font-size:0.85rem; opacity:0.6;">Φόρτωση ιστορικού...</li>
+            <li style="font-size:0.85rem; opacity:0.6; grid-column: 1 / -1; text-align:center;">Φόρτωση ιστορικού...</li>
         </ul>
       </aside>
 
@@ -746,7 +751,7 @@
       function renderHistoryUI() {
           const list = document.getElementById('historyList');
           if (historyItems.length === 0) {
-              list.innerHTML = '<li style="font-size:0.85rem; opacity:0.6;">Δεν υπάρχουν πρόσφατα τραγούδια.</li>';
+              list.innerHTML = '<li style="font-size:0.85rem; opacity:0.6; grid-column: 1 / -1; text-align:center;">Δεν υπάρχουν πρόσφατα τραγούδια.</li>';
               return;
           }
 
