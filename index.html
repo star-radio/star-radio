@@ -1,136 +1,196 @@
 <!DOCTYPE html>
-<html lang="el"> 
+<html lang="el">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Radio - Live Web Player</title>
-    <!-- Εισαγωγή γραμματοσειράς Audiowide -->
+
+    <!-- Google Fonts: Audiowide & Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
     <style>
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
+        :root {
+            --bg-dark: #1f0007;
+            --card-bg: rgba(74, 0, 19, 0.55);
+            --border-color: rgba(226, 168, 190, 0.3);
+            --primary-color: #ff007f;
+            --accent-yellow: #ffea00;
+            --text-main: #ffffff;
+            --text-sub: #e2a8be;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Audiowide', cursive, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: radial-gradient(circle at center, #930628 0%, #4a0013 65%, #1f0007 100%);
-            color: #ffffff;
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            width: 100vw;
             padding: 20px;
-            text-align: center;
             overflow-x: hidden;
         }
 
+        .app-container {
+            width: 100%;
+            max-width: 1050px;
+            margin: auto;
+        }
+
+        /* Top Header */
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        .logo-group {
+            text-align: left;
+        }
+
         .tagline {
-            font-size: 0.85rem;
-            letter-spacing: 2.5px;
-            margin-bottom: 1.2rem;
-            color: #e2a8be;
-            text-shadow: 0 0 5px rgba(0,0,0,0.5);
-            text-transform: uppercase;
-        }
-
-        .logo-container {
-            margin-bottom: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .logo-main-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        /* 3D Αστέρια */
-        .star {
-            color: #ffffff;
-            font-size: 2.5rem;
-            text-shadow: 
-                0 1px 0 #cccccc,
-                0 2px 0 #c0c0c0,
-                0 3px 0 #a0a0a0,
-                0 4px 0 #808080,
-                0 5px 0 #606060,
-                0 8px 12px rgba(0, 0, 0, 0.8);
-        }
-
-        /* 3D Λευκό Λογότυπο STAR RADIO */
-        .logo-main {
-            font-size: 4rem;
-            font-weight: 900;
-            line-height: 1;
-            text-transform: uppercase;
+            font-family: 'Audiowide', cursive;
+            font-size: 0.75rem;
             letter-spacing: 2px;
+            color: var(--text-sub);
+            text-transform: uppercase;
+        }
+
+        .logo-main {
+            font-family: 'Audiowide', cursive;
+            font-size: 1.9rem;
+            font-weight: 900;
             color: #ffffff;
             text-shadow: 
                 0 1px 0 #d9d9d9,
                 0 2px 0 #cccccc,
                 0 3px 0 #bfbfbf,
-                0 4px 0 #b3b3b3,
-                0 5px 0 #a6a6a6,
-                0 6px 0 #999999,
-                0 7px 0 #8c8c8c,
-                0 8px 0 #808080,
-                0 12px 18px rgba(0, 0, 0, 0.9),
-                0 20px 30px rgba(0, 0, 0, 0.6);
+                0 4px 0 #808080,
+                0 6px 12px rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .logo-sub {
-            font-size: 1.3rem;
-            margin-top: 0.8rem;
-            color: #ffffff;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+        .star-ic { 
+            color: var(--accent-yellow); 
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(255, 234, 0, 0.8);
         }
 
-        /* Container Γραφικών & Player */
-        .player-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 440px;
-            margin: 1.8rem 0 1.2rem 0;
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Audiowide', cursive;
+            font-size: 0.85rem;
+            background: rgba(255, 0, 127, 0.2);
+            color: var(--primary-color);
+            padding: 6px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 0, 127, 0.4);
+        }
+
+        .live-badge .dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary-color);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Grid Layout */
+        .player-grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 25px;
+        }
+
+        @media (max-width: 850px) {
+            .player-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Player Main Card */
+        .player-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
 
-        /* SVG Γραφικά: Κασέτα & CDs */
+        .cover-art-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin-bottom: 15px;
+        }
+
+        .cover-art {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 18px;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            background-color: #2a000a;
+        }
+
+        /* SVG Cassette & CDs Graphic */
         .media-graphics-img {
-            width: 85%;
+            width: 220px;
             height: auto;
-            margin-bottom: -18px;
+            margin-bottom: -10px;
             z-index: 1;
-            pointer-events: none; /* Διορθώνει τομπλοκάρισμα κλικ */
+            pointer-events: none;
             filter: drop-shadow(0px 6px 10px rgba(0,0,0,0.8));
         }
 
-        /* Custom Μεταλλικός Player */
+        /* Metallic Player Bar */
         .custom-player-bar {
             position: relative;
             width: 100%;
+            max-width: 420px;
             height: 46px;
             background: linear-gradient(180deg, #7a7a7a 0%, #333333 50%, #1a1a1a 100%);
             border-radius: 23px;
             border: 2px solid #b0b0b0;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,255,255,0.5);
             display: flex;
             align-items: center;
             padding: 0 16px;
             gap: 10px;
-            z-index: 10; /* Εξασφαλίζει ότι είναι πάνω από τα πάντα */
+            z-index: 10;
+            margin-bottom: 20px;
         }
 
         .play-btn {
@@ -139,13 +199,12 @@
             color: #d1d1d1;
             font-size: 1.1rem;
             cursor: pointer;
-            transition: color 0.2s;
-            z-index: 11;
+            transition: color 0.2s, transform 0.1s;
         }
-        .play-btn:hover { color: #ffffff; }
+        .play-btn:hover { color: #ffffff; transform: scale(1.1); }
 
         .time-display {
-            font-family: 'Audiowide', cursive, sans-serif;
+            font-family: 'Audiowide', cursive;
             font-size: 0.85rem;
             color: #b0b0b0;
             min-width: 45px;
@@ -165,14 +224,13 @@
             height: 100%;
             background: linear-gradient(90deg, #ff007f, #be123c);
             box-shadow: 0 0 8px #ff007f;
+            transition: width 0.3s ease;
         }
 
-        /* Περιοχή Controls Έντασης */
         .volume-container {
             display: flex;
             align-items: center;
             gap: 6px;
-            z-index: 11;
         }
 
         .vol-btn {
@@ -182,13 +240,9 @@
             font-size: 1.0rem;
             cursor: pointer;
             transition: color 0.2s;
-            padding: 0;
-            display: flex;
-            align-items: center;
         }
         .vol-btn:hover { color: #ffffff; }
 
-        /* Slider Έντασης */
         .vol-slider {
             -webkit-appearance: none;
             appearance: none;
@@ -199,7 +253,6 @@
             outline: none;
             border: 1px solid #555;
             cursor: pointer;
-            z-index: 11;
         }
 
         .vol-slider::-webkit-slider-thumb {
@@ -208,8 +261,8 @@
             width: 11px;
             height: 11px;
             border-radius: 50%;
-            background: #ffea00;
-            box-shadow: 0 0 5px #ffea00;
+            background: var(--accent-yellow);
+            box-shadow: 0 0 5px var(--accent-yellow);
             cursor: pointer;
         }
 
@@ -217,77 +270,67 @@
             width: 11px;
             height: 11px;
             border-radius: 50%;
-            background: #ffea00;
-            box-shadow: 0 0 5px #ffea00;
+            background: var(--accent-yellow);
+            box-shadow: 0 0 5px var(--accent-yellow);
             cursor: pointer;
             border: none;
         }
 
         audio.hidden-player { display: none; }
 
-        /* Ετικέτα Now Playing - Φωτεινό Κίτρινο */
+        /* Song Info */
         .now-playing-label {
-            font-size: 1.3rem;
-            color: #ffea00;
-            text-shadow: 0 0 12px rgba(255, 234, 0, 0.9), 0 0 22px rgba(255, 200, 0, 0.6);
-            margin-top: 1rem;
-            margin-bottom: 0.4rem;
-            letter-spacing: 1.5px;
-            font-weight: bold;
+            font-family: 'Audiowide', cursive;
+            font-size: 1.1rem;
+            color: var(--accent-yellow);
+            text-shadow: 0 0 8px rgba(255, 234, 0, 0.6);
+            margin-bottom: 4px;
         }
 
         .track-title {
-            font-size: 2rem;
-            color: #fff9e6;
-            text-shadow: 0 0 12px rgba(255, 235, 175, 0.8), 0 0 25px rgba(255, 200, 100, 0.5);
-            margin-bottom: 0.4rem;
+            font-family: 'Audiowide', cursive;
+            font-size: 1.6rem;
+            color: #ffffff;
+            margin-bottom: 4px;
+            word-break: break-word;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.8);
         }
 
-        /* Released Year - Λευκό */
         .release-date {
-            font-size: 1.05rem;
+            font-family: 'Audiowide', cursive, sans-serif;
+            font-size: 0.95rem;
             color: #ffffff;
             letter-spacing: 1.5px;
-            margin-bottom: 0.4rem;
+            margin-bottom: 4px;
             opacity: 0.95;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
-        /* Καλλιτέχνης - Εντονότατο Κίτρινο */
         .track-artist {
+            font-family: 'Audiowide', cursive;
             font-size: 1.2rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #ffea00;
-            text-shadow: 0 0 12px rgba(255, 234, 0, 0.8), 0 2px 4px rgba(0,0,0,0.9);
-            font-weight: bold;
-            margin-bottom: 0.8rem;
+            color: var(--accent-yellow);
+            text-shadow: 0 0 8px rgba(255, 234, 0, 0.6);
+            margin-bottom: 20px;
         }
 
-        /* Social Media Links Container */
+        /* Social Badges */
         .social-container {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 1.2rem;
         }
 
         .social-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s;
             text-decoration: none;
+            transition: transform 0.2s;
         }
-
-        .social-link:hover {
-            transform: scale(1.15);
-        }
+        .social-link:hover { transform: scale(1.15); }
 
         .social-badge {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -298,83 +341,106 @@
         }
 
         .social-icon-img {
-            width: 26px;
-            height: 26px;
+            width: 24px;
+            height: 24px;
         }
 
-        /* Ενότητα Recently Played */
-        .history-container {
-            width: 100%;
-            max-width: 420px;
-            margin-top: 0.5rem;
-            padding-top: 1.2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            display: none;
+        /* Recently Played Sidebar */
+        .history-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
 
         .history-title {
-            font-size: 0.95rem;
-            color: #ffea00;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 0.8rem;
-            text-shadow: 0 0 8px rgba(255, 234, 0, 0.5);
+            font-family: 'Audiowide', cursive;
+            font-size: 1.1rem;
+            color: var(--accent-yellow);
+            margin-bottom: 20px;
+            text-shadow: 0 0 8px rgba(255, 234, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .history-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 14px;
         }
 
         .history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 10px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: left;
+        }
+
+        .history-cover {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: #2a000a;
+        }
+
+        .history-details {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .history-artist {
             font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-yellow);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-song {
+            font-size: 0.8rem;
             color: #ffffff;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 8px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            letter-spacing: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .history-item span {
-            color: #ffea00;
-            font-weight: bold;
-        }
-
-        /* Σταθερό εικονίδιο Discord κάτω δεξιά */
+        /* Floating Discord Button & Modal */
         .discord-float {
             position: fixed;
             right: 18px;
             bottom: 18px;
-            width: 90px;
+            width: 85px;
             z-index: 1000;
-            display: block;
-            line-height: 0;
             transition: transform 0.2s;
-            transform-origin: bottom right;
-        }
-
-        .discord-float:hover {
-            transform: scale(1.12);
-        }
-
-        .discord-float img {
-            width: 100%;
-            height: auto;
-            max-height: 40vh;
-            object-fit: contain;
+            cursor: pointer;
             display: block;
-            border-radius: 14px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
+        }
+        .discord-float:hover { transform: scale(1.1); }
+        .discord-float img { 
+            width: 100%; 
+            height: auto; 
+            border-radius: 14px; 
+            box-shadow: 0 6px 18px rgba(0,0,0,0.7);
         }
 
-        /* Φόρμα μηνύματος */
         .msg-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(0, 0, 0, 0.8);
             display: none;
             align-items: center;
             justify-content: center;
@@ -391,7 +457,7 @@
             border: 2px solid #5865f2;
             border-radius: 18px;
             padding: 24px 20px 18px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.9);
             text-align: center;
         }
 
@@ -402,15 +468,15 @@
             background: none;
             border: none;
             color: #ffffff;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             cursor: pointer;
         }
 
         .msg-title {
-            font-size: 1.5rem;
+            font-family: 'Audiowide', cursive;
+            font-size: 1.3rem;
             color: #38bdf8;
             margin-bottom: 14px;
-            font-weight: normal;
         }
 
         .msg-box input[type="text"],
@@ -422,9 +488,9 @@
             border: 1px solid #5865f2;
             background: #0a0f33;
             color: #ffffff;
+            font-size: 0.9rem;
             font-family: sans-serif;
-            font-size: 0.95rem;
-            resize: vertical;
+            outline: none;
         }
 
         .msg-send {
@@ -434,58 +500,55 @@
             border-radius: 10px;
             background: #5865f2;
             color: #ffffff;
-            font-family: 'Audiowide', cursive, sans-serif;
+            font-family: 'Audiowide', cursive;
             font-size: 1rem;
-            letter-spacing: 1px;
             cursor: pointer;
             transition: background 0.2s;
         }
         .msg-send:hover { background: #4752c4; }
-        .msg-send:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .msg-status {
-            min-height: 1.2em;
-            margin-top: 10px;
-            font-family: sans-serif;
-            font-size: 0.9rem;
-        }
+        .msg-status { margin-top: 10px; font-size: 0.85rem; min-height: 1.2em; }
         .msg-status.ok { color: #4ade80; }
         .msg-status.err { color: #fca5a5; }
 
         .msg-join {
             display: inline-block;
-            margin-top: 8px;
-            font-family: sans-serif;
+            margin-top: 10px;
             font-size: 0.85rem;
             color: #93c5fd;
-        }
-
-        @media (max-width: 480px) {
-            .logo-main { font-size: 2.8rem; }
-            .star { font-size: 1.8rem; }
-            .logo-sub { font-size: 1rem; }
-            .track-title { font-size: 1.5rem; }
-            .now-playing-label { font-size: 1.1rem; }
-            .vol-slider { width: 45px; }
-            .discord-float { width: 70px; right: 12px; bottom: 12px; }
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <div class="tagline">THE HIT WEB-RADIO BRAND</div>
-
-    <div class="logo-container">
-        <div class="logo-main-wrapper">
-            <span class="star">★</span>
-            <div class="logo-main">STAR RADIO</div>
-            <span class="star">★</span>
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="main-header">
+      <div class="logo-group">
+        <div class="tagline">THE HIT WEB-RADIO BRAND</div>
+        <div class="logo-main">
+          <span class="star-ic">★</span> STAR RADIO <span class="star-ic">★</span>
         </div>
-        <div class="logo-sub">80's & 90's Back To Back</div>
-    </div>
+      </div>
+      <div class="live-badge">
+        <span class="dot"></span> LIVE
+      </div>
+    </header>
 
-    <div class="player-wrapper">
-        <!-- SVG Γραφικά: Κασέτα + CDs -->
+    <!-- Main Player Grid -->
+    <main class="player-grid">
+      
+      <!-- Center Player Card -->
+      <section class="player-card">
+        
+        <!-- Album Art Cover -->
+        <div class="cover-art-container">
+          <img src="https://raw.githubusercontent.com/manos-sif/star-radio/main/logo.png" id="mainCover" alt="Album Cover" class="cover-art" onerror="this.src='https://placehold.co/300x300/4a0013/ffea00?text=STAR+RADIO'">
+        </div>
+
+        <!-- SVG Cassette & CDs Graphic -->
         <svg class="media-graphics-img" viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <radialGradient id="gold" cx="50%" cy="50%" r="50%">
@@ -509,7 +572,7 @@
             <g transform="translate(225, 14)"><circle cx="24" cy="24" r="23" fill="url(#pink)" stroke="#ffb3c1" stroke-width="1"/><circle cx="24" cy="24" r="8" fill="#ffe4e6" opacity="0.6"/><circle cx="24" cy="24" r="3.5" fill="#200007"/></g>
         </svg>
 
-        <!-- Custom Μεταλλική Μπάρα Player -->
+        <!-- Custom Metallic Controls -->
         <div class="custom-player-bar">
             <button class="play-btn" id="playBtn">▶</button>
             <span class="time-display" id="timeDisp">00:00</span>
@@ -517,307 +580,320 @@
                 <div class="progress-fill" id="progressFill"></div>
             </div>
             
-            <!-- Controls Έντασης Ήχου -->
             <div class="volume-container">
-                <button class="vol-btn" id="volBtn" title="Σίγαση/Ενεργοποίηση">🔊</button>
-                <input type="range" class="vol-slider" id="volSlider" min="0" max="1" step="0.01" value="1" title="Ένταση ήχου">
+                <button class="vol-btn" id="volBtn" title="Mute/Unmute">🔊</button>
+                <input type="range" class="vol-slider" id="volSlider" min="0" max="1" step="0.01" value="1">
             </div>
         </div>
 
         <audio id="audio" class="hidden-player" preload="none">
             <source src="https://stream.zeno.fm/wqreogixiotuv" type="audio/mpeg">
         </audio>
-    </div>
 
-    <div class="now-playing-label">Now Playing:</div>
-    <div class="track-title" id="song-title">Loading...</div>
-    <div class="release-date" id="song-release">Released Year: ----</div>
-    <div class="track-artist" id="song-artist">STAR RADIO</div>
+        <!-- Live Metadata Track Info -->
+        <div class="now-playing-label">Now Playing:</div>
+        <div class="track-title" id="song-title">Star Radio Live</div>
+        <div class="release-date" id="song-release">Released Year: ----</div>
+        <div class="track-artist" id="song-artist">STAR RADIO</div>
 
-    <!-- Social Media Links (TikTok & Instagram) -->
-    <div class="social-container">
-        <!-- TikTok -->
-        <a href="https://www.tiktok.com/@star_radio_?lang=el-GR" target="_blank" rel="noopener noreferrer" class="social-link" title="Ακολουθήστε μας στο TikTok">
-            <div class="social-badge">
-                <svg class="social-icon-img" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#4a0013" d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25V349.38A162.55 162.55 0 1 1 180 188.31V258a92.43 92.43 0 1 0 70.36 89.86V0h69.64a139.81 139.81 0 0 0 123 120.59z"/>
-                </svg>
-            </div>
-        </a>
-
-        <!-- Instagram -->
-        <a href="https://www.instagram.com/star.radio.official/" target="_blank" rel="noopener noreferrer" class="social-link" title="Ακολουθήστε μας στο Instagram">
-            <div class="social-badge">
-                <svg class="social-icon-img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5" fill="none" stroke="#4a0013" stroke-width="2.2"/>
-                    <circle cx="12" cy="12" r="4.2" fill="none" stroke="#4a0013" stroke-width="2.2"/>
-                    <circle cx="17.3" cy="6.7" r="1.3" fill="#4a0013"/>
-                </svg>
-            </div>
-        </a>
-    </div>
-
-    <!-- Λίστα Προηγούμενων Τραγουδιών (4 tracks) -->
-    <div class="history-container" id="historyContainer">
-        <div class="history-title">Recently Played</div>
-        <ul class="history-list" id="historyList"></ul>
-    </div>
-
-    <!-- Σταθερό εικονίδιο Discord (κάτω δεξιά) -->
-    <a href="#" class="discord-float" id="discordBtn" title="Στείλε μας μήνυμα στο Discord" aria-label="Στείλε μας μήνυμα">
-        <img src="discord.png" alt="Send us a Message - Discord">
-    </a>
-
-    <!-- Φόρμα μηνύματος προς το Discord (webhook) -->
-    <div class="msg-overlay" id="msgOverlay" aria-hidden="true">
-        <div class="msg-box" role="dialog" aria-labelledby="msgTitle">
-            <button type="button" class="msg-close" id="msgClose" aria-label="Κλείσιμο">✕</button>
-            <h2 class="msg-title" id="msgTitle">Send us a Message</h2>
-            <form id="msgForm" autocomplete="off">
-                <input type="text" id="msgName" maxlength="40" placeholder="Το όνομα σου" required>
-                <textarea id="msgText" maxlength="500" rows="5" placeholder="Γράψε το μήνυμά σου..." required></textarea>
-                <!-- Honeypot κατά των bots -->
-                <input type="text" id="msgWebsite" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;">
-                <button type="submit" class="msg-send" id="msgSend">Αποστολή</button>
-                <div class="msg-status" id="msgStatus"></div>
-            </form>
-            <a class="msg-join" href="https://discord.gg/pgT58ADfB" target="_blank" rel="noopener noreferrer">Μπες στο Discord server μας</a>
+        <!-- Social Badges -->
+        <div class="social-container">
+            <a href="https://www.tiktok.com/@star_radio_?lang=el-GR" target="_blank" rel="noopener noreferrer" class="social-link" title="TikTok">
+                <div class="social-badge">
+                    <svg class="social-icon-img" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="#4a0013" d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25V349.38A162.55 162.55 0 1 1 180 188.31V258a92.43 92.43 0 1 0 70.36 89.86V0h69.64a139.81 139.81 0 0 0 123 120.59z"/>
+                    </svg>
+                </div>
+            </a>
+            <a href="https://www.instagram.com/star.radio.official/" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram">
+                <div class="social-badge">
+                    <svg class="social-icon-img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5" fill="none" stroke="#4a0013" stroke-width="2.2"/>
+                        <circle cx="12" cy="12" r="4.2" fill="none" stroke="#4a0013" stroke-width="2.2"/>
+                        <circle cx="17.3" cy="6.7" r="1.3" fill="#4a0013"/>
+                    </svg>
+                </div>
+            </a>
         </div>
-    </div>
 
-    <script>
-        const audio = document.getElementById('audio');
-        const playBtn = document.getElementById('playBtn');
-        const timeDisp = document.getElementById('timeDisp');
-        const progressFill = document.getElementById('progressFill');
-        const volBtn = document.getElementById('volBtn');
-        const volSlider = document.getElementById('volSlider');
+      </section>
 
-        const STREAM_KEY = 'wqreogixiotuv';
-        let historyItems = [];
-        let currentTrackFull = "";
-        let lastVolume = 1;
+      <!-- Sidebar Recently Played -->
+      <aside class="history-card">
+        <div class="history-title"><span>🕒</span> Recently Played</div>
+        <ul class="history-list" id="historyList">
+            <li style="font-size:0.85rem; opacity:0.6;">Φόρτωση ιστορικού...</li>
+        </ul>
+      </aside>
 
-        // Play/Pause Control
-        playBtn.addEventListener('click', () => {
-            if (audio.paused) {
-                audio.play().then(() => {
-                    playBtn.innerText = '❚❚';
-                }).catch(e => {
-                    console.error("Autoplay blocked or stream error:", e);
-                });
-            } else {
-                audio.pause();
-                playBtn.innerText = '▶';
-            }
-        });
+    </main>
 
-        // Ρύθμιση έντασης μέσω του slider
-        volSlider.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            audio.volume = val;
-            updateVolIcon(val);
-        });
+  </div>
 
-        // Toggle Mute / Unmute με κλικ στο εικονίδιο
-        volBtn.addEventListener('click', () => {
-            if (audio.volume > 0) {
-                lastVolume = audio.volume;
-                audio.volume = 0;
-                volSlider.value = 0;
-                updateVolIcon(0);
-            } else {
-                audio.volume = lastVolume > 0 ? lastVolume : 1;
-                volSlider.value = audio.volume;
-                updateVolIcon(audio.volume);
-            }
-        });
+  <!-- Discord Floating Button & Modal -->
+  <a href="#" class="discord-float" id="discordBtn" title="Στείλε μας μήνυμα στο Discord">
+      <img src="https://raw.githubusercontent.com/manos-sif/star-radio/main/discord.png" alt="Send us a Message - Discord" onerror="this.src='https://placehold.co/90x90/5865f2/ffffff?text=Discord'">
+  </a>
 
-        // Ενημέρωση εικονιδίου ανάλογα με την ένταση
-        function updateVolIcon(val) {
-            if (val === 0) {
-                volBtn.innerText = '🔇';
-            } else if (val < 0.5) {
-                volBtn.innerText = '🔉';
-            } else {
-                volBtn.innerText = '🔊';
-            }
-        }
+  <div class="msg-overlay" id="msgOverlay" aria-hidden="true">
+      <div class="msg-box" role="dialog">
+          <button type="button" class="msg-close" id="msgClose">✕</button>
+          <h2 class="msg-title">Send us a Message</h2>
+          <form id="msgForm" autocomplete="off">
+              <input type="text" id="msgName" maxlength="40" placeholder="Το όνομα σου" required>
+              <textarea id="msgText" maxlength="500" rows="5" placeholder="Γράψε το μήνυμά σου..." required></textarea>
+              <input type="text" id="msgWebsite" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;">
+              <button type="submit" class="msg-send" id="msgSend">Αποστολή</button>
+              <div class="msg-status" id="msgStatus"></div>
+          </form>
+          <a class="msg-join" href="https://discord.gg/pgT58ADfB" target="_blank" rel="noopener noreferrer">Μπες στο Discord server μας</a>
+      </div>
+  </div>
 
-        audio.addEventListener('timeupdate', () => {
-            const m = Math.floor(audio.currentTime / 60);
-            const s = Math.floor(audio.currentTime % 60);
-            timeDisp.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-            progressFill.style.width = ((audio.currentTime % 60) * (100 / 60)) + '%';
-        });
+  <script>
+      const audio = document.getElementById('audio');
+      const playBtn = document.getElementById('playBtn');
+      const timeDisp = document.getElementById('timeDisp');
+      const progressFill = document.getElementById('progressFill');
+      const volBtn = document.getElementById('volBtn');
+      const volSlider = document.getElementById('volSlider');
+      const mainCover = document.getElementById('mainCover');
 
-        function renderHistoryUI() {
-            const container = document.getElementById('historyContainer');
-            const list = document.getElementById('historyList');
+      const STREAM_KEY = 'wqreogixiotuv';
+      const DEFAULT_COVER = 'https://raw.githubusercontent.com/manos-sif/star-radio/main/logo.png';
+      let historyItems = [];
+      let currentTrackFull = "";
+      let lastVolume = 1;
 
-            if (historyItems.length === 0) {
-                container.style.display = 'none';
-                return;
-            }
+      // --- iTunes Artwork Fetcher ---
+      async function getAlbumArt(artist, title) {
+          if (!artist || artist === 'STAR RADIO') return DEFAULT_COVER;
+          try {
+              const query = encodeURIComponent(`${artist} ${title}`);
+              const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=1`);
+              const data = await res.json();
+              if (data.results && data.results.length > 0) {
+                  return data.results[0].artworkUrl100.replace('100x100bb', '300x300bb');
+              }
+          } catch (e) {
+              console.error("Artwork search error:", e);
+          }
+          return DEFAULT_COVER;
+      }
 
-            container.style.display = 'block';
-            list.innerHTML = historyItems.map(item => `
-                <li class="history-item">
-                    <span>${item.artist}</span> - ${item.title}
-                </li>
-            `).join('');
-        }
+      // --- Player Controls ---
+      playBtn.addEventListener('click', () => {
+          if (audio.paused) {
+              audio.play().then(() => { 
+                  playBtn.innerText = '❚❚'; 
+              }).catch(e => console.error("Playback error:", e));
+          } else {
+              audio.pause();
+              playBtn.innerText = '▶';
+          }
+      });
 
-        // 1. Άμεση ανάκτηση των 4 τελευταίων τραγουδιών από το API της Zeno.fm
-        async function fetchSongHistoryAPI() {
-            try {
-                const res = await fetch(`https://api.zeno.fm/mounts/metadata/history/${STREAM_KEY}`);
-                const data = await res.json();
-                
-                if (data && data.length > 1) {
-                    const pastSongs = data.slice(1, 5);
-                    historyItems = pastSongs.map(item => {
-                        const clean = item.streamTitle.replace(/\s*\(\d{4}\)/, '');
-                        const parts = clean.split(' - ');
-                        return {
-                            artist: parts.length > 1 ? parts[0] : 'STAR RADIO',
-                            title: parts.length > 1 ? parts.slice(1).join(' - ') : clean
-                        };
-                    });
-                    renderHistoryUI();
-                }
-            } catch (err) {
-                console.error("Σφάλμα ιστορικού:", err);
-            }
-        }
+      volSlider.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          audio.volume = val;
+          updateVolIcon(val);
+      });
 
-        // 2. Ζωντανό stream & ενημέρωση όταν αλλάζει το τραγούδι στον αέρα
-        async function fetchNowPlaying() {
-            try {
-                const response = await fetch(`https://api.zeno.fm/mounts/metadata/subscribe/${STREAM_KEY}`);
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
+      volBtn.addEventListener('click', () => {
+          if (audio.volume > 0) {
+              lastVolume = audio.volume;
+              audio.volume = 0;
+              volSlider.value = 0;
+              updateVolIcon(0);
+          } else {
+              audio.volume = lastVolume > 0 ? lastVolume : 1;
+              volSlider.value = audio.volume;
+              updateVolIcon(audio.volume);
+          }
+      });
 
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    const chunk = decoder.decode(value);
-                    
-                    if (chunk.includes('streamTitle')) {
-                        const match = chunk.match(/"streamTitle":"([^"]+)"/);
-                        if (match && match[1]) {
-                            const rawTitle = match[1];
+      function updateVolIcon(val) {
+          if (val === 0) volBtn.innerText = '🔇';
+          else if (val < 0.5) volBtn.innerText = '🔉';
+          else volBtn.innerText = '🔊';
+      }
 
-                            if (rawTitle !== currentTrackFull && rawTitle.trim() !== "") {
-                                
-                                if (currentTrackFull !== "") {
-                                    const prevArtist = document.getElementById('song-artist').innerText;
-                                    const prevTitle = document.getElementById('song-title').innerText;
-                                    
-                                    if (prevTitle !== "Loading..." && prevTitle !== "Star Radio Live") {
-                                        historyItems.unshift({ artist: prevArtist, title: prevTitle });
-                                        if (historyItems.length > 4) historyItems.pop();
-                                        renderHistoryUI();
-                                    }
-                                }
+      audio.addEventListener('timeupdate', () => {
+          const m = Math.floor(audio.currentTime / 60);
+          const s = Math.floor(audio.currentTime % 60);
+          timeDisp.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+          progressFill.style.width = ((audio.currentTime % 60) * (100 / 60)) + '%';
+      });
 
-                                currentTrackFull = rawTitle;
+      // --- UI History Renderer ---
+      function renderHistoryUI() {
+          const list = document.getElementById('historyList');
+          if (historyItems.length === 0) {
+              list.innerHTML = '<li style="font-size:0.85rem; opacity:0.6;">Δεν υπάρχουν πρόσφατα τραγούδια.</li>';
+              return;
+          }
 
-                                // Ενημέρωση Released Year
-                                const yearMatch = rawTitle.match(/\((\d{4})\)/);
-                                if (yearMatch && yearMatch[1]) {
-                                    document.getElementById('song-release').innerText = 'Released Year: ' + yearMatch[1];
-                                } else {
-                                    document.getElementById('song-release').innerText = 'Released Year: ----';
-                                }
+          list.innerHTML = historyItems.map(item => `
+              <li class="history-item">
+                  <img src="${item.cover}" alt="Cover" class="history-cover" onerror="this.src='${DEFAULT_COVER}'">
+                  <div class="history-details">
+                      <span class="history-artist">${item.artist}</span>
+                      <span class="history-song">${item.title}</span>
+                  </div>
+              </li>
+          `).join('');
+      }
 
-                                const cleanTitle = rawTitle.replace(/\s*\(\d{4}\)/, '');
-                                const parts = cleanTitle.split(' - ');
-                                
-                                if (parts.length > 1) {
-                                    document.getElementById('song-artist').innerText = parts[0];
-                                    document.getElementById('song-title').innerText = parts.slice(1).join(' - ');
-                                } else {
-                                    document.getElementById('song-title').innerText = cleanTitle;
-                                    document.getElementById('song-artist').innerText = 'STAR RADIO';
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch (err) {
-                document.getElementById('song-title').innerText = 'Star Radio Live';
-            }
-        }
+      // --- Zeno History API ---
+      async function fetchSongHistoryAPI() {
+          try {
+              const res = await fetch(`https://api.zeno.fm/mounts/metadata/history/${STREAM_KEY}`);
+              const data = await res.json();
+              
+              if (data && data.length > 1) {
+                  const pastSongs = data.slice(1, 5);
+                  historyItems = [];
+                  for (const item of pastSongs) {
+                      const clean = item.streamTitle.replace(/\s*\(\d{4}\)/, '');
+                      const parts = clean.split(' - ');
+                      const artist = parts.length > 1 ? parts[0] : 'STAR RADIO';
+                      const title = parts.length > 1 ? parts.slice(1).join(' - ') : clean;
+                      const cover = await getAlbumArt(artist, title);
 
-        // ===== Φόρμα μηνύματος προς Discord (webhook) =====
-        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1557373269688975491/OXFTbTWxYESmYek2l5CDLdARiGM21jWRe1O5DoZcPaoDfnRSV-syt5bMT3tHrTPTGFwx';
-        const COOLDOWN_MS = 30000;
+                      historyItems.push({ artist, title, cover });
+                  }
+                  renderHistoryUI();
+              }
+          } catch (err) {
+              console.error("History error:", err);
+          }
+      }
 
-        const discordBtn = document.getElementById('discordBtn');
-        const msgOverlay = document.getElementById('msgOverlay');
-        const msgClose = document.getElementById('msgClose');
-        const msgForm = document.getElementById('msgForm');
-        const msgStatus = document.getElementById('msgStatus');
-        const msgSend = document.getElementById('msgSend');
+      // --- Zeno Live SSE Subscriber ---
+      async function fetchNowPlaying() {
+          try {
+              const response = await fetch(`https://api.zeno.fm/mounts/metadata/subscribe/${STREAM_KEY}`);
+              const reader = response.body.getReader();
+              const decoder = new TextDecoder();
 
-        function openMsg() { msgOverlay.classList.add('open'); msgOverlay.setAttribute('aria-hidden', 'false'); }
-        function closeMsg() { msgOverlay.classList.remove('open'); msgOverlay.setAttribute('aria-hidden', 'true'); }
+              while (true) {
+                  const { value, done } = await reader.read();
+                  if (done) break;
+                  const chunk = decoder.decode(value);
+                  
+                  if (chunk.includes('streamTitle')) {
+                      const match = chunk.match(/"streamTitle":"([^"]+)"/);
+                      if (match && match[1]) {
+                          const rawTitle = match[1];
 
-        discordBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            openMsg();
-        });
-        msgClose.addEventListener('click', closeMsg);
-        msgOverlay.addEventListener('click', (e) => { if (e.target === msgOverlay) closeMsg(); });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMsg(); });
+                          if (rawTitle !== currentTrackFull && rawTitle.trim() !== "") {
+                              
+                              if (currentTrackFull !== "") {
+                                  const prevArtist = document.getElementById('song-artist').innerText;
+                                  const prevTitle = document.getElementById('song-title').innerText;
+                                  const prevCover = mainCover.src;
+                                  
+                                  if (prevTitle !== "Star Radio Live" && prevTitle !== "Loading...") {
+                                      historyItems.unshift({ artist: prevArtist, title: prevTitle, cover: prevCover });
+                                      if (historyItems.length > 4) historyItems.pop();
+                                      renderHistoryUI();
+                                  }
+                              }
 
-        msgForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            msgStatus.className = 'msg-status';
+                              currentTrackFull = rawTitle;
 
-            if (document.getElementById('msgWebsite').value) return;
+                              const yearMatch = rawTitle.match(/\((\d{4})\)/);
+                              document.getElementById('song-release').innerText = yearMatch && yearMatch[1] ? 'Released Year: ' + yearMatch[1] : 'Released Year: ----';
 
-            const last = parseInt(localStorage.getItem('lastMsgTime') || '0', 10);
-            if (Date.now() - last < COOLDOWN_MS) {
-                msgStatus.classList.add('err');
-                msgStatus.innerText = 'Περίμενε λίγο πριν στείλεις νέο μήνυμα.';
-                return;
-            }
+                              const cleanTitle = rawTitle.replace(/\s*\(\d{4}\)/, '');
+                              const parts = cleanTitle.split(' - ');
+                              let artist = 'STAR RADIO';
+                              let title = cleanTitle;
 
-            const name = document.getElementById('msgName').value.trim().slice(0, 40);
-            const text = document.getElementById('msgText').value.trim().slice(0, 500);
-            if (!name || !text) return;
+                              if (parts.length > 1) {
+                                  artist = parts[0];
+                                  title = parts.slice(1).join(' - ');
+                              }
 
-            msgSend.disabled = true;
-            msgStatus.innerText = 'Αποστολή...';
+                              document.getElementById('song-artist').innerText = artist;
+                              document.getElementById('song-title').innerText = title;
 
-            try {
-                const res = await fetch(DISCORD_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username: 'Star Radio Website',
-                        content: `**${name}** (from the website):\n${text}`,
-                        allowed_mentions: { parse: [] }
-                    })
-                });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                localStorage.setItem('lastMsgTime', String(Date.now()));
-                msgForm.reset();
-                msgStatus.classList.add('ok');
-                msgStatus.innerText = 'Το μήνυμά σου στάλθηκε! Ευχαριστούμε.';
-            } catch (err) {
-                msgStatus.classList.add('err');
-                msgStatus.innerText = 'Η αποστολή απέτυχε. Δοκίμασε ξανά αργότερα.';
-            } finally {
-                msgSend.disabled = false;
-            }
-        });
+                              const artUrl = await getAlbumArt(artist, title);
+                              mainCover.src = artUrl;
+                          }
+                      }
+                  }
+              }
+          } catch (err) {
+              console.error("Metadata SSE connection error:", err);
+              document.getElementById('song-title').innerText = 'Star Radio Live';
+          }
+      }
 
-        // Αρχική εκτέλεση
-        fetchSongHistoryAPI();
-        fetchNowPlaying();
-    </script>
+      // --- Discord Webhook Modal ---
+      const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1557373269688975491/OXFTbTWxYESmYek2l5CDLdARiGM21jWRe1O5DoZcPaoDfnRSV-syt5bMT3tHrTPTGFwx';
+      const COOLDOWN_MS = 30000;
+
+      const discordBtn = document.getElementById('discordBtn');
+      const msgOverlay = document.getElementById('msgOverlay');
+      const msgClose = document.getElementById('msgClose');
+      const msgForm = document.getElementById('msgForm');
+      const msgStatus = document.getElementById('msgStatus');
+      const msgSend = document.getElementById('msgSend');
+
+      function openMsg() { msgOverlay.classList.add('open'); msgOverlay.setAttribute('aria-hidden', 'false'); }
+      function closeMsg() { msgOverlay.classList.remove('open'); msgOverlay.setAttribute('aria-hidden', 'true'); }
+
+      discordBtn.addEventListener('click', (e) => { e.preventDefault(); openMsg(); });
+      msgClose.addEventListener('click', closeMsg);
+      msgOverlay.addEventListener('click', (e) => { if (e.target === msgOverlay) closeMsg(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMsg(); });
+
+      msgForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          msgStatus.className = 'msg-status';
+          if (document.getElementById('msgWebsite').value) return;
+
+          const last = parseInt(localStorage.getItem('lastMsgTime') || '0', 10);
+          if (Date.now() - last < COOLDOWN_MS) {
+              msgStatus.classList.add('err');
+              msgStatus.innerText = 'Περίμενε λίγο πριν στείλεις νέο μήνυμα.';
+              return;
+          }
+
+          const name = document.getElementById('msgName').value.trim().slice(0, 40);
+          const text = document.getElementById('msgText').value.trim().slice(0, 500);
+          if (!name || !text) return;
+
+          msgSend.disabled = true;
+          msgStatus.innerText = 'Αποστολή...';
+
+          try {
+              const res = await fetch(DISCORD_WEBHOOK_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      username: 'Star Radio Website',
+                      content: `**${name}** (from the website):\n${text}`,
+                      allowed_mentions: { parse: [] }
+                  })
+              });
+              if (!res.ok) throw new Error('HTTP ' + res.status);
+              localStorage.setItem('lastMsgTime', String(Date.now()));
+              msgForm.reset();
+              msgStatus.classList.add('ok');
+              msgStatus.innerText = 'Το μήνυμά σου στάλθηκε! Ευχαριστούμε.';
+          } catch (err) {
+              msgStatus.classList.add('err');
+              msgStatus.innerText = 'Η αποστολή απέτυχε. Δοκίμασε ξανά αργότερα.';
+          } finally {
+              msgSend.disabled = false;
+          }
+      });
+
+      // Initialize
+      fetchSongHistoryAPI();
+      fetchNowPlaying();
+  </script>
 </body>
 </html>
