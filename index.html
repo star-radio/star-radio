@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Radio - Live Web Player</title>
 
-    <!-- Google Fonts: Audiowide & Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -66,7 +65,7 @@
 
         .tagline {
             font-family: 'Audiowide', cursive;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             letter-spacing: 2px;
             color: var(--text-sub);
             text-transform: uppercase;
@@ -74,24 +73,21 @@
 
         .logo-main {
             font-family: 'Audiowide', cursive;
-            font-size: 1.9rem;
+            font-size: 1.8rem;
             font-weight: 900;
             color: #ffffff;
-            text-shadow: 
-                0 1px 0 #d9d9d9,
-                0 2px 0 #cccccc,
-                0 3px 0 #bfbfbf,
-                0 4px 0 #808080,
-                0 6px 12px rgba(0, 0, 0, 0.9);
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            line-height: 1.1;
         }
+        .star-ic { color: var(--accent-yellow); margin: 0 4px; }
 
-        .star-ic { 
-            color: var(--accent-yellow); 
-            font-size: 1.5rem;
-            text-shadow: 0 0 10px rgba(255, 234, 0, 0.8);
+        .logo-sub {
+            font-family: 'Audiowide', cursive;
+            font-size: 0.85rem;
+            color: var(--accent-yellow);
+            letter-spacing: 1px;
+            margin-top: 4px;
+            text-shadow: 0 0 6px rgba(255, 234, 0, 0.5);
         }
 
         .live-badge {
@@ -162,10 +158,9 @@
             border-radius: 18px;
             border: 2px solid rgba(255,255,255,0.2);
             box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-            background-color: #2a000a;
         }
 
-        /* SVG Cassette & CDs Graphic */
+        /* SVG cassette & CDs */
         .media-graphics-img {
             width: 220px;
             height: auto;
@@ -199,9 +194,9 @@
             color: #d1d1d1;
             font-size: 1.1rem;
             cursor: pointer;
-            transition: color 0.2s, transform 0.1s;
+            transition: color 0.2s;
         }
-        .play-btn:hover { color: #ffffff; transform: scale(1.1); }
+        .play-btn:hover { color: #ffffff; }
 
         .time-display {
             font-family: 'Audiowide', cursive;
@@ -224,7 +219,6 @@
             height: 100%;
             background: linear-gradient(90deg, #ff007f, #be123c);
             box-shadow: 0 0 8px #ff007f;
-            transition: width 0.3s ease;
         }
 
         .volume-container {
@@ -239,9 +233,7 @@
             color: #d1d1d1;
             font-size: 1.0rem;
             cursor: pointer;
-            transition: color 0.2s;
         }
-        .vol-btn:hover { color: #ffffff; }
 
         .vol-slider {
             -webkit-appearance: none;
@@ -266,22 +258,12 @@
             cursor: pointer;
         }
 
-        .vol-slider::-moz-range-thumb {
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-            background: var(--accent-yellow);
-            box-shadow: 0 0 5px var(--accent-yellow);
-            cursor: pointer;
-            border: none;
-        }
-
         audio.hidden-player { display: none; }
 
         /* Song Info */
         .now-playing-label {
             font-family: 'Audiowide', cursive;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--accent-yellow);
             text-shadow: 0 0 8px rgba(255, 234, 0, 0.6);
             margin-bottom: 4px;
@@ -293,7 +275,6 @@
             color: #ffffff;
             margin-bottom: 4px;
             word-break: break-word;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.8);
         }
 
         .release-date {
@@ -362,9 +343,6 @@
             color: var(--accent-yellow);
             margin-bottom: 20px;
             text-shadow: 0 0 8px rgba(255, 234, 0, 0.4);
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .history-list {
@@ -392,7 +370,6 @@
             object-fit: cover;
             flex-shrink: 0;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            background-color: #2a000a;
         }
 
         .history-details {
@@ -426,16 +403,9 @@
             width: 85px;
             z-index: 1000;
             transition: transform 0.2s;
-            cursor: pointer;
-            display: block;
         }
         .discord-float:hover { transform: scale(1.1); }
-        .discord-float img { 
-            width: 100%; 
-            height: auto; 
-            border-radius: 14px; 
-            box-shadow: 0 6px 18px rgba(0,0,0,0.7);
-        }
+        .discord-float img { width: 100%; height: auto; border-radius: 12px; }
 
         .msg-overlay {
             position: fixed;
@@ -489,8 +459,6 @@
             background: #0a0f33;
             color: #ffffff;
             font-size: 0.9rem;
-            font-family: sans-serif;
-            outline: none;
         }
 
         .msg-send {
@@ -503,20 +471,18 @@
             font-family: 'Audiowide', cursive;
             font-size: 1rem;
             cursor: pointer;
-            transition: background 0.2s;
         }
         .msg-send:hover { background: #4752c4; }
 
-        .msg-status { margin-top: 10px; font-size: 0.85rem; min-height: 1.2em; }
+        .msg-status { margin-top: 10px; font-size: 0.85rem; }
         .msg-status.ok { color: #4ade80; }
         .msg-status.err { color: #fca5a5; }
 
         .msg-join {
             display: inline-block;
-            margin-top: 10px;
-            font-size: 0.85rem;
+            margin-top: 8px;
+            font-size: 0.8rem;
             color: #93c5fd;
-            text-decoration: underline;
         }
     </style>
 </head>
@@ -531,6 +497,7 @@
         <div class="logo-main">
           <span class="star-ic">★</span> STAR RADIO <span class="star-ic">★</span>
         </div>
+        <div class="logo-sub">80's & 90's Back To Back</div>
       </div>
       <div class="live-badge">
         <span class="dot"></span> LIVE
@@ -545,10 +512,10 @@
         
         <!-- Album Art Cover -->
         <div class="cover-art-container">
-          <img src="https://raw.githubusercontent.com/manos-sif/star-radio/main/logo.png" id="mainCover" alt="Album Cover" class="cover-art" onerror="this.src='https://placehold.co/300x300/4a0013/ffea00?text=STAR+RADIO'">
+          <img src="logo.png" id="mainCover" alt="Album Cover" class="cover-art" onerror="this.onerror=null; this.src=DEFAULT_COVER;">
         </div>
 
-        <!-- SVG Cassette & CDs Graphic -->
+        <!-- SVG Cassette & CDs -->
         <svg class="media-graphics-img" viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <radialGradient id="gold" cx="50%" cy="50%" r="50%">
@@ -590,22 +557,22 @@
             <source src="https://stream.zeno.fm/wqreogixiotuv" type="audio/mpeg">
         </audio>
 
-        <!-- Live Metadata Track Info -->
+        <!-- Track Info -->
         <div class="now-playing-label">Now Playing:</div>
-        <div class="track-title" id="song-title">Star Radio Live</div>
+        <div class="track-title" id="song-title">Loading...</div>
         <div class="release-date" id="song-release">Released Year: ----</div>
         <div class="track-artist" id="song-artist">STAR RADIO</div>
 
         <!-- Social Badges -->
         <div class="social-container">
-            <a href="https://www.tiktok.com/@star_radio_?lang=el-GR" target="_blank" rel="noopener noreferrer" class="social-link" title="TikTok">
+            <a href="https://www.tiktok.com/@star_radio_?lang=el-GR" target="_blank" rel="noopener noreferrer" class="social-link">
                 <div class="social-badge">
                     <svg class="social-icon-img" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
                         <path fill="#4a0013" d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25V349.38A162.55 162.55 0 1 1 180 188.31V258a92.43 92.43 0 1 0 70.36 89.86V0h69.64a139.81 139.81 0 0 0 123 120.59z"/>
                     </svg>
                 </div>
             </a>
-            <a href="https://www.instagram.com/star.radio.official/" target="_blank" rel="noopener noreferrer" class="social-link" title="Instagram">
+            <a href="https://www.instagram.com/star.radio.official/" target="_blank" rel="noopener noreferrer" class="social-link">
                 <div class="social-badge">
                     <svg class="social-icon-img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5" fill="none" stroke="#4a0013" stroke-width="2.2"/>
@@ -620,10 +587,8 @@
 
       <!-- Sidebar Recently Played -->
       <aside class="history-card">
-        <div class="history-title"><span>🕒</span> Recently Played</div>
-        <ul class="history-list" id="historyList">
-            <li style="font-size:0.85rem; opacity:0.6;">Φόρτωση ιστορικού...</li>
-        </ul>
+        <div class="history-title">Recently Played</div>
+        <ul class="history-list" id="historyList"></ul>
       </aside>
 
     </main>
@@ -632,7 +597,7 @@
 
   <!-- Discord Floating Button & Modal -->
   <a href="#" class="discord-float" id="discordBtn" title="Στείλε μας μήνυμα στο Discord">
-      <img src="https://raw.githubusercontent.com/manos-sif/star-radio/main/discord.png" alt="Send us a Message - Discord" onerror="this.src='https://placehold.co/90x90/5865f2/ffffff?text=Discord'">
+      <img src="discord.png" alt="Send us a Message - Discord">
   </a>
 
   <div class="msg-overlay" id="msgOverlay" aria-hidden="true">
@@ -642,7 +607,7 @@
           <form id="msgForm" autocomplete="off">
               <input type="text" id="msgName" maxlength="40" placeholder="Το όνομα σου" required>
               <textarea id="msgText" maxlength="500" rows="5" placeholder="Γράψε το μήνυμά σου..." required></textarea>
-              <input type="text" id="msgWebsite" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;height:0;width:0;">
+              <input type="text" id="msgWebsite" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;">
               <button type="submit" class="msg-send" id="msgSend">Αποστολή</button>
               <div class="msg-status" id="msgStatus"></div>
           </form>
@@ -660,7 +625,7 @@
       const mainCover = document.getElementById('mainCover');
 
       const STREAM_KEY = 'wqreogixiotuv';
-      const DEFAULT_COVER = 'https://raw.githubusercontent.com/manos-sif/star-radio/main/logo.png';
+      const DEFAULT_COVER = 'logo.png';
       let historyItems = [];
       let currentTrackFull = "";
       let lastVolume = 1;
@@ -676,7 +641,7 @@
                   return data.results[0].artworkUrl100.replace('100x100bb', '300x300bb');
               }
           } catch (e) {
-              console.error("Artwork search error:", e);
+              console.error("Artwork error:", e);
           }
           return DEFAULT_COVER;
       }
@@ -684,9 +649,7 @@
       // --- Player Controls ---
       playBtn.addEventListener('click', () => {
           if (audio.paused) {
-              audio.play().then(() => { 
-                  playBtn.innerText = '❚❚'; 
-              }).catch(e => console.error("Playback error:", e));
+              audio.play().then(() => { playBtn.innerText = '❚❚'; }).catch(e => console.error(e));
           } else {
               audio.pause();
               playBtn.innerText = '▶';
@@ -725,23 +688,27 @@
           progressFill.style.width = ((audio.currentTime % 60) * (100 / 60)) + '%';
       });
 
-      // --- UI History Renderer ---
-      function renderHistoryUI() {
+      // --- UI Renderers ---
+      async function renderHistoryUI() {
           const list = document.getElementById('historyList');
           if (historyItems.length === 0) {
               list.innerHTML = '<li style="font-size:0.85rem; opacity:0.6;">Δεν υπάρχουν πρόσφατα τραγούδια.</li>';
               return;
           }
 
-          list.innerHTML = historyItems.map(item => `
-              <li class="history-item">
-                  <img src="${item.cover}" alt="Cover" class="history-cover" onerror="this.src='${DEFAULT_COVER}'">
-                  <div class="history-details">
-                      <span class="history-artist">${item.artist}</span>
-                      <span class="history-song">${item.title}</span>
-                  </div>
-              </li>
-          `).join('');
+          let html = '';
+          for (const item of historyItems) {
+              html += `
+                  <li class="history-item">
+                      <img src="${item.cover}" alt="Cover" class="history-cover" onerror="this.onerror=null; this.src=DEFAULT_COVER;">
+                      <div class="history-details">
+                          <span class="history-artist">${item.artist}</span>
+                          <span class="history-song">${item.title}</span>
+                      </div>
+                  </li>
+              `;
+          }
+          list.innerHTML = html;
       }
 
       // --- Zeno History API ---
@@ -793,7 +760,7 @@
                                   const prevTitle = document.getElementById('song-title').innerText;
                                   const prevCover = mainCover.src;
                                   
-                                  if (prevTitle !== "Star Radio Live" && prevTitle !== "Loading...") {
+                                  if (prevTitle !== "Loading..." && prevTitle !== "Star Radio Live") {
                                       historyItems.unshift({ artist: prevArtist, title: prevTitle, cover: prevCover });
                                       if (historyItems.length > 4) historyItems.pop();
                                       renderHistoryUI();
@@ -825,7 +792,6 @@
                   }
               }
           } catch (err) {
-              console.error("Metadata SSE connection error:", err);
               document.getElementById('song-title').innerText = 'Star Radio Live';
           }
       }
@@ -847,7 +813,6 @@
       discordBtn.addEventListener('click', (e) => { e.preventDefault(); openMsg(); });
       msgClose.addEventListener('click', closeMsg);
       msgOverlay.addEventListener('click', (e) => { if (e.target === msgOverlay) closeMsg(); });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMsg(); });
 
       msgForm.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -891,7 +856,7 @@
           }
       });
 
-      // Initialize
+      // Init
       fetchSongHistoryAPI();
       fetchNowPlaying();
   </script>
