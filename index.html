@@ -927,28 +927,37 @@
       });
 
 
-       // --- Jazler: two upcoming songs from public playlist repository ---
+       // --- Jazler upcoming songs: fresh polling and current-song exclusion ---
        const NEXT_JSON_URL = 'https://raw.githubusercontent.com/star-radio/star-radio-playlist/main/next.json';
        let previousUpcomingSignature = '';
-       async function fetchUpcomingSongs() {
+       let latestUpcomingTracks = [];
+       let upcomingRequestInFlight = false;
+       function normalizeTrackText(value) {
+           return String(value || '').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+       }
+       function refreshUpcomingDisplay() {
+           const currentArtist = normalizeTrackText(document.getElementById('song-artist').textContent);
+           const currentTitle = normalizeTrackText(document.getElementById('song-title').textContent);
+           const tracks = latestUpcomingTracks.filter(track => !(
+               normalizeTrackText(track.artist) === currentArtist &&
+               normalizeTrackText(track.title) === currentTitle
+           )).slice(0, 2);
+           const signature = JSON.stringify(tracks);
+           if (signature === previousUpcomingSignature) return;
+           previousUpcomingSignature = signature;
+           renderUpcomingTracks(tracks);
+       }
+       function renderUpcomingTracks(tracks) {
            const list = document.getElementById('upNextList');
-           try {
-               const response = await fetch(NEXT_JSON_URL + '?t=' + Date.now(), {cache:'no-store'});
-               if (!response.ok) throw new Error('HTTP ' + response.status);
-               const data = await response.json();
-               const tracks = Array.isArray(data.upNext) ? data.upNext.slice(0,2) : [];
-               const signature = JSON.stringify(tracks);
-               if (signature === previousUpcomingSignature) return;
-               previousUpcomingSignature = signature;
-               list.replaceChildren();
-               if (!tracks.length) {
-                   const li = document.createElement('li');
-                   li.className = 'playlist-message';
-                   li.textContent = 'Upcoming songs not available.';
-                   list.appendChild(li);
-                   return;
-               }
-               for (const track of tracks) {
+           list.replaceChildren();
+           if (!tracks.length) {
+               const li = document.createElement('li');
+               li.className = 'playlist-message';
+               li.textContent = 'Waiting for upcoming songs...';
+               list.appendChild(li);
+               return;
+           }
+for (const track of tracks) {
                    const artist = String(track.artist || 'STAR RADIO');
                    const title = String(track.title || 'Unknown track');
                    const li = document.createElement('li');
@@ -972,15 +981,23 @@
                    // Reuse existing iTunes artwork search; fallback is the station logo.
                    getAlbumArt(artist, title).then(url => { img.src = url; }).catch(() => {});
                }
+                  }
+       async function fetchUpcomingSongs() {
+           if (upcomingRequestInFlight) return;
+           upcomingRequestInFlight = true;
+           try {
+               const response = await fetch(NEXT_JSON_URL + '?t=' + Date.now(), {cache:'no-store'});
+               if (!response.ok) throw new Error('HTTP ' + response.status);
+               const data = await response.json();
+               latestUpcomingTracks = Array.isArray(data.upNext) ? data.upNext : [];
+               refreshUpcomingDisplay();
            } catch (error) {
                console.error('Upcoming songs error:', error);
                if (!previousUpcomingSignature) {
-                   list.replaceChildren();
-                   const li = document.createElement('li');
-                   li.className = 'playlist-message';
-                   li.textContent = 'Upcoming songs temporarily unavailable.';
-                   list.appendChild(li);
+                   document.getElementById('upNextList').textContent = 'Upcoming songs temporarily unavailable.';
                }
+           } finally {
+               upcomingRequestInFlight = false;
            }
        }
 
@@ -988,7 +1005,7 @@
       fetchSongHistoryAPI();
       fetchNowPlaying();
       fetchUpcomingSongs();
-      setInterval(fetchUpcomingSongs, 30000);
+      setInterval(fetchUpcomingSongs, 10000);
   </script>
 </body>
 </html>
