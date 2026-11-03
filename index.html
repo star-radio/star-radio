@@ -404,6 +404,18 @@
             text-overflow: ellipsis;
         }
 
+
+        /* Two-column recently played / Jazler upcoming panel */
+        .playlist-columns { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .playlist-column { min-width:0; }
+        .playlist-column .history-title { margin-bottom:16px; }
+        .playlist-column .history-list { grid-template-columns:1fr; gap:12px; }
+        .playlist-column .history-item { min-width:0; }
+        .playlist-column .history-cover { width:60px; height:60px; }
+        .playlist-column .history-details { min-width:0; }
+        .playlist-message { font-size:0.8rem; color:var(--text-sub); padding:12px; }
+        @media(max-width:600px) { .playlist-columns { grid-template-columns:1fr; } }
+
         /* Floating Discord Button - Τετράγωνο (Κάθετο) */
         .discord-float {
             position: fixed;
@@ -633,12 +645,22 @@
 
       </section>
 
-      <!-- Recently Played Section at Bottom -->
+      <!-- Recently Played and Coming Up Next -->
       <aside class="history-card">
-        <div class="history-title"><span>🕒</span> Recently Played</div>
-        <ul class="history-list" id="historyList">
-            <li style="font-size:0.85rem; opacity:0.6; grid-column: 1 / -1; text-align:center;">Φόρτωση ιστορικού...</li>
-        </ul>
+        <div class="playlist-columns">
+          <section class="playlist-column" aria-label="Recently Played">
+            <div class="history-title"><span>🕒</span> Recently Played</div>
+            <ul class="history-list" id="historyList">
+              <li class="playlist-message">Loading history...</li>
+            </ul>
+          </section>
+          <section class="playlist-column" aria-label="Coming Up Next">
+            <div class="history-title">Coming Up Next</div>
+            <ul class="history-list" id="upNextList" aria-live="polite">
+              <li class="playlist-message">Loading upcoming songs...</li>
+            </ul>
+          </section>
+        </div>
       </aside>
 
     </main>
@@ -766,7 +788,7 @@
               const data = await res.json();
               
               if (data && data.length > 1) {
-                  const pastSongs = data.slice(1, 5);
+                  const pastSongs = data.slice(1, 3);
                   historyItems = [];
                   for (const item of pastSongs) {
                       const clean = item.streamTitle.replace(/\s*\(\d{4}\)/, '');
@@ -810,7 +832,7 @@
                                   
                                   if (prevTitle !== "Star Radio Live" && prevTitle !== "Loading...") {
                                       historyItems.unshift({ artist: prevArtist, title: prevTitle, cover: prevCover });
-                                      if (historyItems.length > 4) historyItems.pop();
+                                      if (historyItems.length > 2) historyItems.pop();
                                       renderHistoryUI();
                                   }
                               }
@@ -904,9 +926,69 @@
           }
       });
 
+
+       // --- Jazler: two upcoming songs from public playlist repository ---
+       const NEXT_JSON_URL = 'https://raw.githubusercontent.com/star-radio/star-radio-playlist/main/next.json';
+       let previousUpcomingSignature = '';
+       async function fetchUpcomingSongs() {
+           const list = document.getElementById('upNextList');
+           try {
+               const response = await fetch(NEXT_JSON_URL + '?t=' + Date.now(), {cache:'no-store'});
+               if (!response.ok) throw new Error('HTTP ' + response.status);
+               const data = await response.json();
+               const tracks = Array.isArray(data.upNext) ? data.upNext.slice(0,2) : [];
+               const signature = JSON.stringify(tracks);
+               if (signature === previousUpcomingSignature) return;
+               previousUpcomingSignature = signature;
+               list.replaceChildren();
+               if (!tracks.length) {
+                   const li = document.createElement('li');
+                   li.className = 'playlist-message';
+                   li.textContent = 'Upcoming songs not available.';
+                   list.appendChild(li);
+                   return;
+               }
+               for (const track of tracks) {
+                   const artist = String(track.artist || 'STAR RADIO');
+                   const title = String(track.title || 'Unknown track');
+                   const li = document.createElement('li');
+                   li.className = 'history-item';
+                   const img = document.createElement('img');
+                   img.className = 'history-cover';
+                   img.alt = 'Album cover';
+                   img.src = DEFAULT_COVER;
+                   img.onerror = function () { handleImgError(this); };
+                   const details = document.createElement('div');
+                   details.className = 'history-details';
+                   const artistSpan = document.createElement('span');
+                   artistSpan.className = 'history-artist';
+                   artistSpan.textContent = artist;
+                   const titleSpan = document.createElement('span');
+                   titleSpan.className = 'history-song';
+                   titleSpan.textContent = title;
+                   details.append(artistSpan, titleSpan);
+                   li.append(img, details);
+                   list.appendChild(li);
+                   // Reuse existing iTunes artwork search; fallback is the station logo.
+                   getAlbumArt(artist, title).then(url => { img.src = url; }).catch(() => {});
+               }
+           } catch (error) {
+               console.error('Upcoming songs error:', error);
+               if (!previousUpcomingSignature) {
+                   list.replaceChildren();
+                   const li = document.createElement('li');
+                   li.className = 'playlist-message';
+                   li.textContent = 'Upcoming songs temporarily unavailable.';
+                   list.appendChild(li);
+               }
+           }
+       }
+
       // Init
       fetchSongHistoryAPI();
       fetchNowPlaying();
+      fetchUpcomingSongs();
+      setInterval(fetchUpcomingSongs, 30000);
   </script>
 </body>
 </html>
