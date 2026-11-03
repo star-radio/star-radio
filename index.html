@@ -854,6 +854,11 @@
                               document.getElementById('song-artist').innerText = artist;
                               document.getElementById('song-title').innerText = title;
 
+                              // Immediately remove the now-playing song from the upcoming list.
+                              // The third Jazler track provides a spare until GitHub catches up.
+                              refreshUpcomingDisplay();
+                              fetchUpcomingSongs();
+
                               const artUrl = await getAlbumArt(artist, title);
                               mainCover.src = artUrl;
                           }
