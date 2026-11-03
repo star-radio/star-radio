@@ -608,7 +608,7 @@
         <!-- Metadata Song Info -->
         <div class="now-playing-label">Now Playing:</div>
         <div class="track-title" id="song-title">Star Radio Live</div>
-        <div class="release-date" id="song-release">Released Year: ----</div>
+       
         <div class="track-artist" id="song-artist">STAR RADIO</div>
 
         <!-- Social Media Buttons -->
@@ -817,8 +817,7 @@
 
                               currentTrackFull = rawTitle;
 
-                              const yearMatch = rawTitle.match(/\((\d{4})\)/);
-                              document.getElementById('song-release').innerText = yearMatch && yearMatch[1] ? 'Released Year: ' + yearMatch[1] : 'Released Year: ----';
+                              
 
                               const cleanTitle = rawTitle.replace(/\s*\(\d{4}\)/, '');
                               const parts = cleanTitle.split(' - ');
