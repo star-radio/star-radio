@@ -702,20 +702,114 @@
       let currentTrackFull = "";
       let lastVolume = 1;
 
-      // --- iTunes Artwork Fetcher ---
-      async function getAlbumArt(artist, title) {
-          if (!artist || artist === 'STAR RADIO') return DEFAULT_COVER;
-          try {
-              const query = encodeURIComponent(`${artist} ${title}`);
-              const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=1`);
-              const data = await res.json();
-              if (data.results && data.results.length > 0) {
-                  return data.results[0].artworkUrl100.replace('100x100bb', '300x300bb');
-              }
-          } catch (e) {
-              console.error("Artwork search error:", e);
+      // --- MusicBrainz + Cover Art Archive, with verified iTunes fallback ---
+      // Respect MusicBrainz's rate limit: at most one request every 1.2 seconds.
+      const artworkCache = new Map();
+      const artworkPending = new Map();
+      let mbQueue = Promise.resolve();
+      let lastMBRequest = 0;
+      function normalizeArtworkText(value) {
+          return String(value || '').normalize('NFKD')
+              .replace(/[\u0300-\u036f]/g, '').toLowerCase()
+              .replace(/&/g, ' and ')
+              .replace(/\b(feat\.?|featuring|ft\.?)\s+.*$/i, '')
+              .replace(/\s*\([^)]*(remaster|mix|edit|version|live|radio)[^)]*\)/gi, '')
+              .replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+      }
+      function artistMatches(requested, candidate) {
+          const a = normalizeArtworkText(requested), b = normalizeArtworkText(candidate);
+          return !!a && !!b && (a === b || b.startsWith(a + ' and ') || a.startsWith(b + ' and '));
+      }
+      function songMatches(requested, candidate) {
+          const a = normalizeArtworkText(requested), b = normalizeArtworkText(candidate);
+          return !!a && !!b && a === b;
+      }
+      function mbEscape(value) {
+          return String(value).replace(/[+\-!(){}\[\]^"~*?:\\/]|&&|\|\|/g, ' ').trim();
+      }
+      function mbRequest(url) {
+          const task = mbQueue.catch(() => {}).then(async () => {
+              const wait = Math.max(0, 1200 - (Date.now() - lastMBRequest));
+              if (wait) await new Promise(resolve => setTimeout(resolve, wait));
+              lastMBRequest = Date.now();
+              const controller = new AbortController();
+              const timeout = setTimeout(() => controller.abort(), 6500);
+              try {
+                  const res = await fetch(url, {signal: controller.signal});
+                  if (!res.ok) throw new Error('MusicBrainz HTTP ' + res.status);
+                  return await res.json();
+              } finally { clearTimeout(timeout); }
+          });
+          mbQueue = task.catch(() => {});
+          return task;
+      }
+      function imageAvailable(url) {
+          return new Promise(resolve => {
+              const img = new Image();
+              const timer = setTimeout(() => { img.onload = img.onerror = null; resolve(false); }, 4500);
+              img.onload = () => { clearTimeout(timer); resolve(true); };
+              img.onerror = () => { clearTimeout(timer); resolve(false); };
+              img.src = url;
+          });
+      }
+      async function searchMusicBrainzArt(artist, title) {
+          const query = `releasegroup:"${mbEscape(title)}" AND artist:"${mbEscape(artist)}"`;
+          const url = 'https://musicbrainz.org/ws/2/release-group/?query=' + encodeURIComponent(query) + '&fmt=json&limit=12';
+          const data = await mbRequest(url);
+          const groups = (data['release-groups'] || []).filter(group => {
+              const artists = (group['artist-credit'] || []).filter(x => x && x.artist).map(x => x.artist.name);
+              return songMatches(title, group.title) && artists.some(name => artistMatches(artist, name));
+          });
+          // Singles first; an album of the same title is not necessarily the right release.
+          groups.sort((a,b) => {
+              const rank = g => (g['primary-type'] === 'Single' ? 3 : g['primary-type'] === 'EP' ? 2 : 0);
+              return rank(b) - rank(a) || String(a['first-release-date'] || '9999').localeCompare(String(b['first-release-date'] || '9999'));
+          });
+          for (const group of groups.slice(0, 3)) {
+              if (!group.id) continue;
+              const cover = `https://coverartarchive.org/release-group/${encodeURIComponent(group.id)}/front-250`;
+              if (await imageAvailable(cover)) return cover;
           }
-          return DEFAULT_COVER;
+          return null;
+      }
+      async function searchVerifiedItunesArt(artist, title) {
+          const query = encodeURIComponent(`${artist} ${title}`);
+          const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=50`);
+          if (!res.ok) throw new Error('iTunes HTTP ' + res.status);
+          const data = await res.json();
+          const verified = (Array.isArray(data.results) ? data.results : []).filter(item =>
+              item.kind === 'song' && item.artworkUrl100 &&
+              artistMatches(artist, item.artistName) && songMatches(title, item.trackName)
+          );
+          verified.sort((x,y) => {
+              const score = item =>
+                  (normalizeArtworkText(item.artistName) === normalizeArtworkText(artist) ? 5 : 0) +
+                  (/greatest hits|best of|various artists|compilation|karaoke|tribute/i.test(item.collectionName || '') ? -5 : 0) +
+                  (item.releaseDate ? Math.max(0, 2050 - Number(item.releaseDate.slice(0,4))) / 100 : 0);
+              return score(y) - score(x);
+          });
+          return verified[0] ? verified[0].artworkUrl100.replace(/100x100bb/, '300x300bb') : null;
+      }
+      async function getAlbumArt(artist, title) {
+          if (!artist || !title || normalizeArtworkText(artist) === 'star radio') return DEFAULT_COVER;
+          const key = normalizeArtworkText(artist) + '|' + normalizeArtworkText(title);
+          if (artworkCache.has(key)) return artworkCache.get(key);
+          if (artworkPending.has(key)) return artworkPending.get(key);
+          const pending = (async () => {
+              let cover = null;
+              try { cover = await searchMusicBrainzArt(artist, title); }
+              catch (err) { console.warn('MusicBrainz artwork unavailable:', err); }
+              if (!cover) {
+                  try { cover = await searchVerifiedItunesArt(artist, title); }
+                  catch (err) { console.warn('iTunes artwork unavailable:', err); }
+              }
+              cover = cover || DEFAULT_COVER;
+              artworkCache.set(key, cover);
+              return cover;
+          })();
+          artworkPending.set(key, pending);
+          try { return await pending; }
+          finally { artworkPending.delete(key); }
       }
 
       // --- Audio Controls ---
@@ -859,8 +953,10 @@
                               refreshUpcomingDisplay();
                               fetchUpcomingSongs();
 
+                              mainCover.src = DEFAULT_COVER;
+                              const expectedTrack = rawTitle;
                               const artUrl = await getAlbumArt(artist, title);
-                              mainCover.src = artUrl;
+                              if (currentTrackFull === expectedTrack) mainCover.src = artUrl;
                           }
                       }
                   }
@@ -984,7 +1080,7 @@ for (const track of tracks) {
                    li.append(img, details);
                    list.appendChild(li);
                    // Reuse existing iTunes artwork search; fallback is the station logo.
-                   getAlbumArt(artist, title).then(url => { img.src = url; }).catch(() => {});
+                   getAlbumArt(artist, title).then(url => { if (img.isConnected) img.src = url; }).catch(() => {});
                }
                   }
        async function fetchUpcomingSongs() {
