@@ -790,9 +790,39 @@
           });
           return verified[0] ? verified[0].artworkUrl100.replace(/100x100bb/, '300x300bb') : null;
       }
+      // STAR RADIO manual artwork library (same GitHub folder as index.html).
+      // Keys: "artist|title"; values: local image paths or HTTPS URLs.
+      const MANUAL_COVERS_URL = 'covers.json';
+      let manualCoversPromise = null;
+      function getManualCovers() {
+          if (!manualCoversPromise) {
+              manualCoversPromise = fetch(MANUAL_COVERS_URL + '?v=1', {cache: 'no-cache'})
+                  .then(response => {
+                      if (!response.ok) throw new Error('covers.json not found');
+                      return response.json();
+                  })
+                  .then(data => {
+                      const result = new Map();
+                      if (!data || typeof data !== 'object' || Array.isArray(data)) return result;
+                      for (const [name, url] of Object.entries(data)) {
+                          if (typeof url !== 'string' || !url.trim()) continue;
+                          // Avoid javascript: and data: URLs in user-managed JSON.
+                          if (!/^(https:\/\/|covers\/)[^\s]+$/i.test(url.trim())) continue;
+                          const pieces = name.split('|');
+                          if (pieces.length !== 2) continue;
+                          result.set(normalizeArtworkText(pieces[0]) + '|' + normalizeArtworkText(pieces[1]), url.trim());
+                      }
+                      return result;
+                  })
+                  .catch(err => { console.info('Manual covers unavailable; using automatic search.', err); return new Map(); });
+          }
+          return manualCoversPromise;
+      }
       async function getAlbumArt(artist, title) {
           if (!artist || !title || normalizeArtworkText(artist) === 'star radio') return DEFAULT_COVER;
           const key = normalizeArtworkText(artist) + '|' + normalizeArtworkText(title);
+          const manualCovers = await getManualCovers();
+          if (manualCovers.has(key)) return manualCovers.get(key);
           if (artworkCache.has(key)) return artworkCache.get(key);
           if (artworkPending.has(key)) return artworkPending.get(key);
           const pending = (async () => {
