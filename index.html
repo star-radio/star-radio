@@ -826,30 +826,95 @@
           }
           return manualCoversPromise;
       }
+      // Artwork diagnostics: open the site with ?coverdebug=1 to inspect failures.
+      // Logs stay in this browser and never contain the Discord webhook.
+      const coverDiagnostics = new Map();
+      function logCoverDiagnostic(artist, title, outcome, details) {
+          const key = `${artist} | ${title}`;
+          coverDiagnostics.set(key, {artist, title, outcome, details, at: new Date().toLocaleTimeString()});
+          if (coverDiagnostics.size > 100) coverDiagnostics.delete(coverDiagnostics.keys().next().value);
+          renderCoverDiagnostics();
+      }
+      function renderCoverDiagnostics() {
+          const output = document.getElementById('coverDiagnosticOutput');
+          if (!output) return;
+          const rows = [...coverDiagnostics.values()];
+          const failures = rows.filter(x => x.outcome !== 'FOUND');
+          output.textContent = `Checked: ${rows.length} | Not found / failed: ${failures.length}\n\n` +
+              (rows.length ? rows.map(x => `[${x.at}] ${x.outcome}: ${x.artist} - ${x.title}\n  ${x.details}`).join('\n\n') : 'Waiting for tracks...');
+      }
+      function setupCoverDiagnostics() {
+          if (new URLSearchParams(location.search).get('coverdebug') !== '1') return;
+          const panel = document.createElement('section');
+          panel.id = 'coverDiagnosticPanel';
+          panel.style.cssText = 'position:fixed;bottom:12px;left:12px;z-index:3000;width:min(540px,calc(100vw - 24px));max-height:55vh;overflow:auto;background:#170b19;color:#fff;border:2px solid #ffea00;border-radius:12px;padding:14px;font:13px/1.5 monospace;box-shadow:0 6px 30px #000b';
+          const header = document.createElement('div');
+          header.textContent = 'STAR RADIO - COVER DIAGNOSTICS';
+          header.style.cssText = 'font-weight:bold;color:#ffea00;margin-bottom:8px';
+          const copy = document.createElement('button');
+          copy.type = 'button'; copy.textContent = 'Copy report';
+          copy.style.cssText = 'padding:7px 12px;margin:0 8px 8px 0;cursor:pointer';
+          const clear = document.createElement('button');
+          clear.type = 'button'; clear.textContent = 'Clear';
+          clear.style.cssText = 'padding:7px 12px;margin-bottom:8px;cursor:pointer';
+          const out = document.createElement('pre');
+          out.id = 'coverDiagnosticOutput';
+          out.style.cssText = 'white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 monospace';
+          copy.addEventListener('click', async () => {
+              const report = out.textContent;
+              try { await navigator.clipboard.writeText(report); copy.textContent = 'Copied!'; }
+              catch (_) { const blob = new Blob([report], {type:'text/plain'}); const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='star-radio-cover-report.txt';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000); }
+          });
+          clear.addEventListener('click', () => {coverDiagnostics.clear(); renderCoverDiagnostics();});
+          panel.append(header,copy,clear,out);
+          document.body.appendChild(panel);
+          renderCoverDiagnostics();
+      }
+      setupCoverDiagnostics();
       async function getAlbumArt(artist, title) {
           if (!artist || !title || normalizeArtworkText(artist) === 'star radio') return DEFAULT_COVER;
           const key = normalizeArtworkText(artist) + '|' + normalizeArtworkText(title);
           const manualCovers = await getManualCovers();
-          if (manualCovers.has(key)) return manualCovers.get(key);
+          if (manualCovers.has(key)) {
+              logCoverDiagnostic(artist, title, 'FOUND', 'Manual covers.json');
+              return manualCovers.get(key);
+          }
           if (artworkCache.has(key)) return artworkCache.get(key);
           if (artworkPending.has(key)) return artworkPending.get(key);
           const pending = (async () => {
               let cover = null;
-              // Fast iTunes search first; MusicBrainz is slower and rate-limited.
-              try { cover = await searchVerifiedItunesArt(artist, title); }
-              catch (err) { console.warn('iTunes artwork unavailable:', err); }
+              let itunesStatus = 'no verified match';
+              let mbStatus = 'not searched';
+              try {
+                  cover = await searchVerifiedItunesArt(artist, title);
+                  if (cover) itunesStatus = 'matched';
+              } catch (err) { itunesStatus = 'request error: ' + String(err.message || err); console.warn('iTunes artwork unavailable:', err); }
               if (!cover) {
-                  try { cover = await searchMusicBrainzArt(artist, title); }
-                  catch (err) { console.warn('MusicBrainz artwork unavailable:', err); }
+                  mbStatus = 'no verified release with available image';
+                  try {
+                      cover = await searchMusicBrainzArt(artist, title);
+                      if (cover) mbStatus = 'matched';
+                  } catch (err) { mbStatus = 'request error: ' + String(err.message || err); console.warn('MusicBrainz artwork unavailable:', err); }
               }
-              cover = cover || DEFAULT_COVER;
-              artworkCache.set(key, cover);
-              return cover;
+              if (cover) {
+                  logCoverDiagnostic(artist, title, 'FOUND', `iTunes: ${itunesStatus}; MusicBrainz: ${mbStatus}`);
+                  artworkCache.set(key, cover);
+                  return cover;
+              }
+              logCoverDiagnostic(artist, title, 'NO COVER', `iTunes: ${itunesStatus}; MusicBrainz: ${mbStatus}`);
+              // Do not cache failures permanently: another attempt can succeed later.
+              return DEFAULT_COVER;
           })();
           artworkPending.set(key, pending);
           try { return await pending; }
           finally { artworkPending.delete(key); }
       }
+
+      mainCover.addEventListener('error', () => {
+          const artist = document.getElementById('song-artist').textContent;
+          const title = document.getElementById('song-title').textContent;
+          logCoverDiagnostic(artist, title, 'IMAGE ERROR', 'Artwork URL failed to load in the browser');
+      });
 
       // --- Audio Controls ---
       playBtn.addEventListener('click', () => {
