@@ -941,6 +941,29 @@
               clearTimeout(timer);
           }
       }
+       // Optional local cover overrides: upload a JPG/PNG/WebP into /covers
+       // using the normalized artist-title filename (no covers.json editing).
+       const localCoverCache = new Map();
+       function coverFilenamePart(value) {
+           return String(value || '').normalize('NFKD')
+               .replace(/[\u0300-\u036f]/g, '').toLowerCase()
+               .replace(/&/g, ' and ')
+               .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+       }
+       async function findLocalCover(artist, title) {
+           const base = coverFilenamePart(artist) + '-' + coverFilenamePart(title);
+           if (localCoverCache.has(base)) return localCoverCache.get(base);
+           for (const ext of ['jpg', 'png', 'webp', 'jpeg']) {
+               const path = 'covers/' + base + '.' + ext;
+               if (await imageAvailable(path)) {
+                   localCoverCache.set(base, path);
+                   return path;
+               }
+           }
+           // Missing files are not cached: newly uploaded covers will be detected.
+           return null;
+       }
+
       async function getAlbumArt(artist, title) {
           if (!artist || !title || normalizeArtworkText(artist) === 'star radio') return DEFAULT_COVER;
           const key = normalizeArtworkText(artist) + '|' + normalizeArtworkText(title);
@@ -949,41 +972,54 @@
               logCoverDiagnostic(artist, title, 'FOUND', 'Verified manual covers.json');
               return manualCovers.get(key);
           }
+           // A local file takes precedence over automatic catalogue matches.
+           const localCover = await findLocalCover(artist, title);
+           if (localCover) {
+               logCoverDiagnostic(artist, title, 'FOUND', 'Local GitHub cover: ' + localCover);
+               return localCover;
+           }
           if (artworkCache.has(key)) return artworkCache.get(key);
           if (artworkPending.has(key)) return artworkPending.get(key);
           const pending = (async () => {
-              let itunes = null, mb = null;
-              let itunesStatus = 'no verified match', mbStatus = 'not searched';
+              // Automatic priority: Discogs -> iTunes -> MusicBrainz.
+              let discogsStatus = 'not searched';
               try {
-                  itunes = await searchVerifiedItunesArt(artist,title);
-                  if (itunes) itunesStatus = itunes.source;
+                  const discogs = await searchDiscogsArt(artist, title);
+                  discogsStatus = discogs.status || 'no verified match';
+                  if (discogs.url && await imageAvailable(discogs.url)) {
+                      logCoverDiagnostic(artist, title, 'FOUND', `Selected: ${discogs.source}`);
+                      artworkCache.set(key, discogs.url);
+                      return discogs.url;
+                  }
+                  if (discogs.url) discogsStatus = 'image failed to load';
+              } catch (err) { discogsStatus = 'request error: ' + String(err.message || err); }
+
+              let itunesStatus = 'no verified match';
+              try {
+                  const itunes = await searchVerifiedItunesArt(artist, title);
+                  if (itunes) {
+                      itunesStatus = itunes.source;
+                      if (await imageAvailable(itunes.url)) {
+                          logCoverDiagnostic(artist, title, 'FOUND', `Selected: ${itunesStatus}; Discogs: ${discogsStatus}`);
+                          artworkCache.set(key, itunes.url);
+                          return itunes.url;
+                      }
+                      itunesStatus += ' (image failed to load)';
+                  }
               } catch (err) { itunesStatus = 'request error: ' + String(err.message || err); }
-              // Display a verified iTunes cover immediately; do not hold the player
-              // while the slower MusicBrainz/Cover Art Archive checks run.
-              if (itunes) {
-                  logCoverDiagnostic(artist,title,'FOUND',`Selected: ${itunesStatus}`);
-                  artworkCache.set(key,itunes.url);
-                  return itunes.url;
-              }
-              mbStatus = 'no matching release with image';
+
+              let mbStatus = 'no matching release with image';
               try {
-                  mb = await searchMusicBrainzArt(artist,title);
-                  if (mb) mbStatus = mb.source;
+                  const mb = await searchMusicBrainzArt(artist, title);
+                  if (mb) {
+                      mbStatus = mb.source;
+                      artworkCache.set(key, mb.url);
+                      logCoverDiagnostic(artist, title, 'FOUND', `Selected: ${mbStatus}; Discogs: ${discogsStatus}; iTunes: ${itunesStatus}`);
+                      return mb.url;
+                  }
               } catch (err) { mbStatus = 'request error: ' + String(err.message || err); }
-              if (mb) {
-                  logCoverDiagnostic(artist,title,'FOUND',`Selected: ${mbStatus}`);
-                  artworkCache.set(key,mb.url);
-                  return mb.url;
-              }
-              // Third choice: Discogs only if both existing catalogues have no cover.
-              const discogs = await searchDiscogsArt(artist,title);
-              if (discogs.url) {
-                  logCoverDiagnostic(artist,title,'FOUND',`Selected: ${discogs.source}`);
-                  artworkCache.set(key,discogs.url);
-                  return discogs.url;
-              }
-              logCoverDiagnostic(artist,title,'NO COVER',`iTunes: ${itunesStatus}; MusicBrainz: ${mbStatus}; Discogs: ${discogs.status}`);
-              // Never cache missing artwork permanently: retry on a future track occurrence.
+
+              logCoverDiagnostic(artist, title, 'NO COVER', `Discogs: ${discogsStatus}; iTunes: ${itunesStatus}; MusicBrainz: ${mbStatus}`);
               return DEFAULT_COVER;
           })();
           artworkPending.set(key,pending);
