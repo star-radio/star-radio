@@ -805,7 +805,7 @@
           for (const searchTitle of queries) {
               for (const country of ['US', 'GB']) {
                   try {
-                      const params = new URLSearchParams({term: `${artist} ${searchTitle}`, entity:'song', limit:'200', country});
+                      const params = new URLSearchParams({term: `${searchArtist} ${searchTitle}`, entity:'song', limit:'200', country});
                       const response = await fetch('https://itunes.apple.com/search?' + params);
                       if (!response.ok) continue;
                       const data = await response.json();
@@ -1305,7 +1305,7 @@ for (const track of tracks) {
                    details.append(artistSpan, titleSpan);
                    li.append(img, details);
                    list.appendChild(li);
-                   // Reuse existing iTunes artwork search; fallback is the station logo.
+                   // Shared artwork lookup: manual -> Discogs -> iTunes -> MusicBrainz.
                    getAlbumArt(artist, title).then(url => { if (img.isConnected) img.src = url; }).catch(() => {});
                }
                   }
