@@ -702,7 +702,7 @@
       let currentTrackFull = "";
       let lastVolume = 1;
 
-      // --- iTunes first, MusicBrainz second, GitHub covers third ---
+      // --- Manual GitHub overrides first; otherwise iTunes, MusicBrainz, fallback ---
       // Respect MusicBrainz's rate limit: at most one request every 1.2 seconds.
       const artworkCache = new Map();
       const artworkPending = new Map();
@@ -916,8 +916,9 @@
           renderCoverDiagnostics();
       }
       setupCoverDiagnostics();
-       // Optional local cover overrides: upload a JPG/PNG/WebP into /covers
-       // using the normalized artist-title filename (no covers.json editing).
+       // Manual overrides always win over automatic artwork.
+       // Upload covers/artist-title.jpg (or png/webp/jpeg) to GitHub.
+       // A fresh page load checks the GitHub folder again.
        const localCoverCache = new Map();
        function coverFilenamePart(value) {
            return String(value || '').normalize('NFKD')
@@ -930,12 +931,13 @@
            if (localCoverCache.has(base)) return localCoverCache.get(base);
            for (const ext of ['jpg', 'png', 'webp', 'jpeg']) {
                const path = 'covers/' + base + '.' + ext;
-               if (await imageAvailable(path)) {
-                   localCoverCache.set(base, path);
-                   return path;
+               // Cache-bust GitHub Pages/browser caches when the file was replaced.
+               const checkedPath = path + '?v=' + Math.floor(Date.now() / 300000);
+               if (await imageAvailable(checkedPath)) {
+                   localCoverCache.set(base, checkedPath);
+                   return checkedPath;
                }
            }
-           // Missing files are not cached: newly uploaded covers will be detected.
            return null;
        }
 
@@ -945,6 +947,23 @@
           if (artworkCache.has(key)) return artworkCache.get(key);
           if (artworkPending.has(key)) return artworkPending.get(key);
           const pending = (async () => {
+              // 1. A manually uploaded cover corrects a missing OR wrong automatic cover.
+              const localCover = await findLocalCover(artist, title);
+              if (localCover) {
+                  logCoverDiagnostic(artist, title, 'FOUND', 'Manual GitHub covers/: ' + localCover);
+                  artworkCache.set(key, localCover);
+                  return localCover;
+              }
+              // Optional covers.json mappings are also explicit manual overrides.
+              const manualCovers = await getManualCovers();
+              const manual = manualCovers.get(key);
+              if (manual && await imageAvailable(manual)) {
+                  logCoverDiagnostic(artist, title, 'FOUND', 'Manual GitHub covers.json: ' + manual);
+                  artworkCache.set(key, manual);
+                  return manual;
+              }
+
+              // 2. iTunes, 3. MusicBrainz, 4. STAR RADIO fallback.
               let itunesStatus = 'no verified match';
               try {
                   const itunes = await searchVerifiedItunesArt(artist, title);
@@ -969,20 +988,6 @@
                   }
               } catch (err) { mbStatus = 'request error: ' + String(err.message || err); }
 
-              // GitHub manual artwork is the third source, after iTunes and MusicBrainz.
-              const manualCovers = await getManualCovers();
-              const manual = manualCovers.get(key);
-              if (manual && await imageAvailable(manual)) {
-                  logCoverDiagnostic(artist, title, 'FOUND', 'GitHub covers.json: ' + manual);
-                  artworkCache.set(key, manual);
-                  return manual;
-              }
-              const localCover = await findLocalCover(artist, title);
-              if (localCover) {
-                  logCoverDiagnostic(artist, title, 'FOUND', 'GitHub covers/: ' + localCover);
-                  artworkCache.set(key, localCover);
-                  return localCover;
-              }
               logCoverDiagnostic(artist, title, 'NO COVER', 'iTunes: ' + itunesStatus + '; MusicBrainz: ' + mbStatus + '; GitHub: not found');
               return DEFAULT_COVER;
           })();
