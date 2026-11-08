@@ -721,8 +721,11 @@
           return !!a && !!b && (a === b || b.startsWith(a + ' and ') || a.startsWith(b + ' and '));
       }
       function songMatches(requested, candidate) {
-          const a = normalizeArtworkText(requested), b = normalizeArtworkText(candidate);
-          return !!a && !!b && a === b;
+          const clean = v => normalizeArtworkText(v)
+              .replace(/\b(extended|radio|club|original|album|single|remastered|remaster|version|mix|edit|remix|instrumental|official|video|stereo|mono|digitally)\b/g, ' ')
+              .replace(/\s+/g, ' ').trim();
+          const a = clean(requested), b = clean(candidate);
+          return !!a && !!b && (a === b || (a.length >= 8 && b.startsWith(a + ' ')) || (b.length >= 8 && a.startsWith(b + ' ')));
       }
       function mbEscape(value) {
           return String(value).replace(/[+\-!(){}\[\]^"~*?:\\/]|&&|\|\|/g, ' ').trim();
@@ -773,22 +776,27 @@
           return null;
       }
       async function searchVerifiedItunesArt(artist, title) {
-          const query = encodeURIComponent(`${artist} ${title}`);
-          const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=50`);
-          if (!res.ok) throw new Error('iTunes HTTP ' + res.status);
-          const data = await res.json();
-          const verified = (Array.isArray(data.results) ? data.results : []).filter(item =>
-              item.kind === 'song' && item.artworkUrl100 &&
-              artistMatches(artist, item.artistName) && songMatches(title, item.trackName)
-          );
-          verified.sort((x,y) => {
-              const score = item =>
-                  (normalizeArtworkText(item.artistName) === normalizeArtworkText(artist) ? 5 : 0) +
-                  (/greatest hits|best of|various artists|compilation|karaoke|tribute/i.test(item.collectionName || '') ? -5 : 0) +
-                  (item.releaseDate ? Math.max(0, 2050 - Number(item.releaseDate.slice(0,4))) / 100 : 0);
-              return score(y) - score(x);
-          });
-          return verified[0] ? verified[0].artworkUrl100.replace(/100x100bb/, '300x300bb') : null;
+          const variants = [title, String(title).replace(/\s*[([{].*?[)\]}]/g, '').replace(/\s+-\s+(extended|radio|remix|edit|version).*$/i, '').trim()];
+          for (const searchTitle of [...new Set(variants.filter(Boolean))]) {
+              const query = encodeURIComponent(`${artist} ${searchTitle}`);
+              const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=100`);
+              if (!res.ok) continue;
+              const data = await res.json();
+              const verified = (Array.isArray(data.results) ? data.results : []).filter(item =>
+                  item.kind === 'song' && item.artworkUrl100 &&
+                  artistMatches(artist, item.artistName) && songMatches(searchTitle, item.trackName)
+              );
+              verified.sort((x,y) => {
+                  const score = item =>
+                      (normalizeArtworkText(item.artistName) === normalizeArtworkText(artist) ? 10 : 0) +
+                      (normalizeArtworkText(item.trackName) === normalizeArtworkText(searchTitle) ? 8 : 0) +
+                      (/greatest hits|best of|various artists|compilation|karaoke|tribute/i.test(item.collectionName || '') ? -8 : 0) +
+                      (item.releaseDate ? Math.max(0, 2050 - Number(item.releaseDate.slice(0,4))) / 100 : 0);
+                  return score(y) - score(x);
+              });
+              if (verified[0]) return verified[0].artworkUrl100.replace(/100x100bb/, '300x300bb');
+          }
+          return null;
       }
       // STAR RADIO manual artwork library (same GitHub folder as index.html).
       // Keys: "artist|title"; values: local image paths or HTTPS URLs.
@@ -827,11 +835,12 @@
           if (artworkPending.has(key)) return artworkPending.get(key);
           const pending = (async () => {
               let cover = null;
-              try { cover = await searchMusicBrainzArt(artist, title); }
-              catch (err) { console.warn('MusicBrainz artwork unavailable:', err); }
+              // Fast iTunes search first; MusicBrainz is slower and rate-limited.
+              try { cover = await searchVerifiedItunesArt(artist, title); }
+              catch (err) { console.warn('iTunes artwork unavailable:', err); }
               if (!cover) {
-                  try { cover = await searchVerifiedItunesArt(artist, title); }
-                  catch (err) { console.warn('iTunes artwork unavailable:', err); }
+                  try { cover = await searchMusicBrainzArt(artist, title); }
+                  catch (err) { console.warn('MusicBrainz artwork unavailable:', err); }
               }
               cover = cover || DEFAULT_COVER;
               artworkCache.set(key, cover);
