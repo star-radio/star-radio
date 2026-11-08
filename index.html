@@ -534,7 +534,54 @@
         @media (max-width: 480px) {
             .discord-float { width: 55px; height: 75px; right: 15px; bottom: 15px; }
         }
-    </style>
+    /* STAR RADIO mobile-only compact layout — desktop styles untouched */
+@media (max-width: 700px) {
+  body {padding: 10px 10px 76px; align-items:flex-start;}
+  .app-container {width:100%;max-width:100%;min-width:0;}
+  .main-header {padding:13px 14px; margin-bottom:12px; border-radius:16px; gap:8px; min-width:0;}
+  .logo-group {min-width:0;flex:1;gap:3px;}
+  .tagline {font-size:.49rem;letter-spacing:1px;line-height:1.3;}
+  .logo-main {font-size:clamp(1.05rem,5vw,1.45rem);white-space:nowrap;letter-spacing:-.6px;line-height:1.2;}
+  .star-ic {margin:0 1px;}
+  .logo-sub {font-size:clamp(.53rem,2.5vw,.72rem);letter-spacing:0;line-height:1.3;margin-top:2px;}
+  .live-badge {font-size:.62rem;flex-shrink:0;padding:6px 8px;gap:5px;}
+  .live-badge .dot {width:6px;height:6px;}
+  .player-grid {gap:12px;}
+  .player-card {display:grid;grid-template-columns:minmax(0,112px) minmax(0,1fr);grid-template-areas:'cover label' 'cover title' 'cover artist' 'controls controls' 'social social';column-gap:13px;row-gap:5px;align-items:center;text-align:left;padding:17px 14px;border-radius:17px;min-width:0;}
+  .cover-art-container {grid-area:cover;width:112px;height:112px;max-width:100%;margin:0;align-self:center;}
+  .cover-art {border-radius:12px;}
+  .media-graphics-img {display:none;}
+  .now-playing-label {grid-area:label;font-size:.72rem;margin:0;align-self:end;}
+  .track-title {grid-area:title;font-size:clamp(.95rem,4.1vw,1.2rem);line-height:1.3;margin:0;overflow-wrap:anywhere;word-break:normal;min-width:0;}
+  .track-artist {grid-area:artist;font-size:clamp(.78rem,3.4vw,1rem);line-height:1.3;margin:0;overflow-wrap:anywhere;min-width:0;align-self:start;}
+  .custom-player-bar {grid-area:controls;width:100%;max-width:100%;height:50px;margin:11px 0 5px;padding:0 10px;gap:8px;min-width:0;}
+  .play-btn {font-size:1.3rem;min-width:30px;min-height:40px;}
+  .time-display {font-size:.68rem;min-width:38px;}
+  .progress-bar-bg {min-width:12px;}
+  .volume-container {gap:4px;flex-shrink:0;}
+  .vol-btn {font-size:.9rem;min-width:24px;min-height:40px;}
+  .vol-slider {width:44px;}
+  .social-container {grid-area:social;justify-content:center;margin-top:4px;gap:14px;}
+  .social-badge {width:36px;height:36px;}
+  .history-card {padding:17px 14px;border-radius:17px;}
+  .playlist-columns {grid-template-columns:1fr;gap:18px;}
+  .playlist-column .history-title {margin-bottom:10px;font-size:.94rem;}
+  .playlist-column .history-list {gap:8px;}
+  .playlist-column .history-item {padding:8px;border-radius:12px;}
+  .playlist-column .history-cover {width:49px;height:49px;}
+  .discord-float {right:12px;bottom:82px;width:43px;height:55px;border-radius:7px;opacity:.88;}
+}
+@media (max-width: 360px) {
+  .main-header {padding:11px 10px;}
+  .logo-main {font-size:1rem;}
+  .live-badge {font-size:.55rem;padding:5px 6px;}
+  .player-card {grid-template-columns:92px minmax(0,1fr);column-gap:10px;padding:13px 10px;}
+  .cover-art-container {width:92px;height:92px;}
+  .custom-player-bar {padding:0 7px;gap:5px;}
+  .vol-slider {width:30px;}
+}
+
+</style>
 
     <script>
         const SVG_FALLBACK = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'><rect width='300' height='300' fill='%234a0013'/><circle cx='150' cy='150' r='120' fill='%23930628' stroke='%23ffea00' stroke-width='4'/><text x='50%' y='45%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='28' fill='%23ffffff'>STAR RADIO</text><text x='50%' y='60%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' fill='%23ffea00'>80s & 90s</text></svg>";
