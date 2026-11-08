@@ -941,6 +941,59 @@
            return null;
        }
 
+      // Attractive, self-contained artwork for tracks without a verified cover.
+      // This is generated in the browser; no images or files need uploading.
+      function createTrackArtwork(artist, title) {
+          const xml = value => String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+          const splitLines = (value, maxChars, maxLines) => {
+              const words = String(value || '').trim().split(/\s+/);
+              const lines = [];
+              let line = '';
+              for (const word of words) {
+                  if (!line) line = word;
+                  else if ((line + ' ' + word).length <= maxChars) line += ' ' + word;
+                  else { lines.push(line); line = word; }
+              }
+              if (line) lines.push(line);
+              if (lines.length > maxLines) {
+                  const kept = lines.slice(0, maxLines);
+                  kept[maxLines - 1] = kept[maxLines - 1].slice(0, maxChars - 1).trimEnd() + '…';
+                  return kept;
+              }
+              return lines;
+          };
+          const titleLines = splitLines(title, 22, 3);
+          const artistLines = splitLines(artist, 27, 2);
+          const titleSize = titleLines.some(x => x.length > 19) ? 34 : 40;
+          const titleY = 295 - (titleLines.length - 1) * 20;
+          const titleSvg = titleLines.map((line, i) =>
+              `<text x="300" y="${titleY + i * 47}" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="${titleSize}" fill="#ffffff">${xml(line)}</text>`).join('');
+          const artistSvg = artistLines.map((line, i) =>
+              `<text x="300" y="${415 + i * 30}" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="25" fill="#ffea00">${xml(line)}</text>`).join('');
+          const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+            <defs>
+              <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#160724"/><stop offset=".5" stop-color="#65052c"/><stop offset="1" stop-color="#160724"/></linearGradient>
+              <radialGradient id="glow"><stop stop-color="#ff007f" stop-opacity=".55"/><stop offset="1" stop-color="#ff007f" stop-opacity="0"/></radialGradient>
+            </defs>
+            <rect width="600" height="600" fill="url(#bg)"/>
+            <circle cx="300" cy="220" r="270" fill="url(#glow)"/>
+            <g opacity=".18" stroke="#ffea00" fill="none">
+              <circle cx="300" cy="290" r="235" stroke-width="2"/><circle cx="300" cy="290" r="210"/><circle cx="300" cy="290" r="185"/>
+              <circle cx="300" cy="290" r="160"/><circle cx="300" cy="290" r="135"/>
+            </g>
+            <rect x="23" y="23" width="554" height="554" rx="26" fill="none" stroke="#ff007f" stroke-width="3"/>
+            <text x="300" y="92" text-anchor="middle" font-family="Arial,sans-serif" font-size="33" font-weight="900" letter-spacing="4" fill="#ffffff">★ STAR RADIO ★</text>
+            <text x="300" y="129" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" letter-spacing="3" fill="#ffea00">80s · 90s · 00s</text>
+            <path d="M95 174 H505" stroke="#ff007f" stroke-width="3"/>
+            <text x="300" y="214" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" letter-spacing="5" fill="#ffb6d9">NOW PLAYING</text>
+            ${titleSvg}${artistSvg}
+            <path d="M100 496 H500" stroke="#ff007f" stroke-width="2"/>
+            <text x="300" y="535" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" letter-spacing="2" fill="#ffffff">STAR-RADIO.ONLINE</text>
+          </svg>`;
+          return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      }
+
       async function getAlbumArt(artist, title) {
           if (!artist || !title || normalizeArtworkText(artist) === 'star radio') return DEFAULT_COVER;
           const key = normalizeArtworkText(artist) + '|' + normalizeArtworkText(title);
@@ -989,7 +1042,7 @@
               } catch (err) { mbStatus = 'request error: ' + String(err.message || err); }
 
               logCoverDiagnostic(artist, title, 'NO COVER', 'iTunes: ' + itunesStatus + '; MusicBrainz: ' + mbStatus + '; GitHub: not found');
-              return DEFAULT_COVER;
+              return createTrackArtwork(artist, title);
           })();
           artworkPending.set(key, pending);
           try { return await pending; } finally { artworkPending.delete(key); }
@@ -999,6 +1052,7 @@
           const artist = document.getElementById('song-artist').textContent;
           const title = document.getElementById('song-title').textContent;
           logCoverDiagnostic(artist, title, 'IMAGE ERROR', 'Artwork URL failed to load in the browser');
+          if (!mainCover.src.startsWith('data:image/svg+xml')) mainCover.src = createTrackArtwork(artist, title);
       });
 
       // --- Audio Controls ---
@@ -1143,7 +1197,7 @@
                               refreshUpcomingDisplay();
                               fetchUpcomingSongs();
 
-                              mainCover.src = DEFAULT_COVER;
+                              mainCover.src = createTrackArtwork(artist, title);
                               const expectedTrack = rawTitle;
                               const artUrl = await getAlbumArt(artist, title);
                               if (currentTrackFull === expectedTrack) mainCover.src = artUrl;
@@ -1261,7 +1315,7 @@ for (const track of tracks) {
                    const img = document.createElement('img');
                    img.className = 'history-cover';
                    img.alt = 'Album cover';
-                   img.src = DEFAULT_COVER;
+                   img.src = createTrackArtwork(artist, title);
                    img.onerror = function () { handleImgError(this); };
                    const details = document.createElement('div');
                    details.className = 'history-details';
@@ -1274,7 +1328,7 @@ for (const track of tracks) {
                    details.append(artistSpan, titleSpan);
                    li.append(img, details);
                    list.appendChild(li);
-                   // Shared artwork lookup: manual -> Discogs -> iTunes -> MusicBrainz.
+                   // Shared artwork lookup: manual -> iTunes -> MusicBrainz -> generated track artwork.
                    getAlbumArt(artist, title).then(url => { if (img.isConnected) img.src = url; }).catch(() => {});
                }
                   }
