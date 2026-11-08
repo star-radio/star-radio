@@ -715,7 +715,7 @@
   </div>
 
   <!-- Floating Discord Button - Τετράγωνο (Κάθετο) -->
-  <a href="#" class="discord-float" id="discordBtn" title="Στείλε μας μήνυμα στο Discord" aria-label="Discord Message">
+  <a href="#" class="discord-float" id="discordBtn" title="Send us a message on Discord" aria-label="Discord Message">
       <img src="discord.png" alt="Discord" onerror="this.onerror=null; this.src='https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png';">
   </a>
 
@@ -725,13 +725,13 @@
           <button type="button" class="msg-close" id="msgClose">✕</button>
           <h2 class="msg-title">Send us a Message</h2>
           <form id="msgForm" autocomplete="off">
-              <input type="text" id="msgName" maxlength="40" placeholder="Το όνομα σου" required>
-              <textarea id="msgText" maxlength="500" rows="5" placeholder="Γράψε το μήνυμά σου..." required></textarea>
+              <input type="text" id="msgName" maxlength="40" placeholder="Your Name" required>
+              <textarea id="msgText" maxlength="500" rows="5" placeholder="Write your message..." required></textarea>
               <input type="text" id="msgWebsite" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;">
-              <button type="submit" class="msg-send" id="msgSend">Αποστολή</button>
+              <button type="submit" class="msg-send" id="msgSend">Send Message</button>
               <div class="msg-status" id="msgStatus"></div>
           </form>
-          <a class="msg-join" href="https://discord.gg/pgT58ADfB" target="_blank" rel="noopener noreferrer">Μπες στο Discord server μας</a>
+          <a class="msg-join" href="https://discord.gg/pgT58ADfB" target="_blank" rel="noopener noreferrer">Join Our Discord Server</a>
       </div>
   </div>
 
@@ -1284,7 +1284,7 @@
           const last = parseInt(localStorage.getItem('lastMsgTime') || '0', 10);
           if (Date.now() - last < COOLDOWN_MS) {
               msgStatus.classList.add('err');
-              msgStatus.innerText = 'Περίμενε λίγο πριν στείλεις νέο μήνυμα.';
+              msgStatus.innerText = 'Please wait a moment before sending another message.';
               return;
           }
 
@@ -1294,11 +1294,11 @@
 
           if (!DISCORD_WEBHOOK_URL) {
               msgStatus.classList.add('err');
-              msgStatus.innerText = 'Η αποστολή μηνυμάτων δεν είναι προσωρινά διαθέσιμη. Χρησιμοποίησε τον σύνδεσμο Discord παρακάτω.';
+              msgStatus.innerText = 'Messaging is temporarily unavailable. Please use the Discord link below.';
               return;
           }
           msgSend.disabled = true;
-          msgStatus.innerText = 'Αποστολή...';
+          msgStatus.innerText = 'Sending...';
 
           try {
               const res = await fetch(DISCORD_WEBHOOK_URL, {
@@ -1314,10 +1314,10 @@
               localStorage.setItem('lastMsgTime', String(Date.now()));
               msgForm.reset();
               msgStatus.classList.add('ok');
-              msgStatus.innerText = 'Το μήνυμά σου στάλθηκε! Ευχαριστούμε.';
+              msgStatus.innerText = 'Your message has been sent! Thank you.';
           } catch (err) {
               msgStatus.classList.add('err');
-              msgStatus.innerText = 'Η αποστολή απέτυχε. Δοκίμασε ξανά αργότερα.';
+              msgStatus.innerText = 'Message could not be sent. Please try again later.';
           } finally {
               msgSend.disabled = false;
           }
