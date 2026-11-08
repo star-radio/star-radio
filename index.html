@@ -716,8 +716,10 @@
               .replace(/\s*\([^)]*(remaster|mix|edit|version|live|radio)[^)]*\)/gi, '')
               .replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
       }
+      // Match leading "The" and harmless punctuation, without accepting unrelated artists.
       function artistMatches(requested, candidate) {
-          const a = normalizeArtworkText(requested), b = normalizeArtworkText(candidate);
+          const clean = value => normalizeArtworkText(value).replace(/^the\s+/, '').replace(/\s+/g,' ').trim();
+          const a = clean(requested), b = clean(candidate);
           return !!a && !!b && (a === b || b.startsWith(a + ' and ') || a.startsWith(b + ' and '));
       }
       function songMatches(requested, candidate) {
@@ -730,18 +732,29 @@
       function mbEscape(value) {
           return String(value).replace(/[+\-!(){}\[\]^"~*?:\\/]|&&|\|\|/g, ' ').trim();
       }
+      const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       function mbRequest(url) {
           const task = mbQueue.catch(() => {}).then(async () => {
-              const wait = Math.max(0, 1200 - (Date.now() - lastMBRequest));
-              if (wait) await new Promise(resolve => setTimeout(resolve, wait));
-              lastMBRequest = Date.now();
-              const controller = new AbortController();
-              const timeout = setTimeout(() => controller.abort(), 6500);
-              try {
-                  const res = await fetch(url, {signal: controller.signal});
-                  if (!res.ok) throw new Error('MusicBrainz HTTP ' + res.status);
-                  return await res.json();
-              } finally { clearTimeout(timeout); }
+              for (let attempt = 0; attempt < 3; attempt++) {
+                  const wait = Math.max(0, 1250 - (Date.now() - lastMBRequest));
+                  if (wait) await pause(wait);
+                  lastMBRequest = Date.now();
+                  const controller = new AbortController();
+                  const timeout = setTimeout(() => controller.abort(), 9000);
+                  try {
+                      const res = await fetch(url, {signal: controller.signal});
+                      if ([429,500,502,503,504].includes(res.status) && attempt < 2) {
+                          const retryAfter = Number(res.headers.get('Retry-After'));
+                          await pause(Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(10000,retryAfter*1000) : 1500*(attempt+1));
+                          continue;
+                      }
+                      if (!res.ok) throw new Error('MusicBrainz HTTP ' + res.status);
+                      return await res.json();
+                  } catch (err) {
+                      if (attempt === 2 || err.name !== 'AbortError') throw err;
+                      await pause(1200*(attempt+1));
+                  } finally { clearTimeout(timeout); }
+              }
           });
           mbQueue = task.catch(() => {});
           return task;
@@ -749,54 +762,67 @@
       function imageAvailable(url) {
           return new Promise(resolve => {
               const img = new Image();
-              const timer = setTimeout(() => { img.onload = img.onerror = null; resolve(false); }, 4500);
+              const timer = setTimeout(() => { img.onload = img.onerror = null; resolve(false); }, 5000);
               img.onload = () => { clearTimeout(timer); resolve(true); };
               img.onerror = () => { clearTimeout(timer); resolve(false); };
               img.src = url;
           });
       }
+      const collectionBad = /greatest hits|best of|very best|essential|anthology|compilation|karaoke|tribute|various artists|hits of|the collection|golden hits|number ones|ultimate collection|remix collection/i;
+      function earliestYear(value) {
+          const y = Number(String(value || '').slice(0,4));
+          return y >= 1900 && y <= 2030 ? y : 9999;
+      }
+      // MusicBrainz: prefer a release group explicitly classified as Single, from its earliest release.
       async function searchMusicBrainzArt(artist, title) {
           const query = `releasegroup:"${mbEscape(title)}" AND artist:"${mbEscape(artist)}"`;
-          const url = 'https://musicbrainz.org/ws/2/release-group/?query=' + encodeURIComponent(query) + '&fmt=json&limit=12';
+          const url = 'https://musicbrainz.org/ws/2/release-group/?query=' + encodeURIComponent(query) + '&fmt=json&limit=30';
           const data = await mbRequest(url);
           const groups = (data['release-groups'] || []).filter(group => {
               const artists = (group['artist-credit'] || []).filter(x => x && x.artist).map(x => x.artist.name);
-              return songMatches(title, group.title) && artists.some(name => artistMatches(artist, name));
+              return songMatches(title, group.title) && artists.some(name => artistMatches(artist, name)) &&
+                  !collectionBad.test(group.title || '') && !(group['secondary-types'] || []).includes('Compilation');
           });
-          // Singles first; an album of the same title is not necessarily the right release.
           groups.sort((a,b) => {
-              const rank = g => (g['primary-type'] === 'Single' ? 3 : g['primary-type'] === 'EP' ? 2 : 0);
-              return rank(b) - rank(a) || String(a['first-release-date'] || '9999').localeCompare(String(b['first-release-date'] || '9999'));
+              const rank = g => (g['primary-type'] === 'Single' ? 0 : g['primary-type'] === 'EP' ? 1 : 2);
+              return rank(a)-rank(b) || earliestYear(a['first-release-date'])-earliestYear(b['first-release-date']);
           });
-          for (const group of groups.slice(0, 3)) {
+          for (const group of groups.slice(0, 6)) {
               if (!group.id) continue;
               const cover = `https://coverartarchive.org/release-group/${encodeURIComponent(group.id)}/front-250`;
-              if (await imageAvailable(cover)) return cover;
+              if (await imageAvailable(cover)) return {url:cover, source:'MusicBrainz original single/release', year:earliestYear(group['first-release-date'])};
           }
           return null;
       }
+      // iTunes results are not guaranteed to be original. Reject obvious compilation releases.
       async function searchVerifiedItunesArt(artist, title) {
           const variants = [title, String(title).replace(/\s*[([{].*?[)\]}]/g, '').replace(/\s+-\s+(extended|radio|remix|edit|version).*$/i, '').trim()];
+          const candidates = new Map();
           for (const searchTitle of [...new Set(variants.filter(Boolean))]) {
               const query = encodeURIComponent(`${artist} ${searchTitle}`);
-              const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=100`);
+              const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=200`);
               if (!res.ok) continue;
               const data = await res.json();
-              const verified = (Array.isArray(data.results) ? data.results : []).filter(item =>
-                  item.kind === 'song' && item.artworkUrl100 &&
-                  artistMatches(artist, item.artistName) && songMatches(searchTitle, item.trackName)
-              );
-              verified.sort((x,y) => {
-                  const score = item =>
-                      (normalizeArtworkText(item.artistName) === normalizeArtworkText(artist) ? 10 : 0) +
-                      (normalizeArtworkText(item.trackName) === normalizeArtworkText(searchTitle) ? 8 : 0) +
-                      (/greatest hits|best of|various artists|compilation|karaoke|tribute/i.test(item.collectionName || '') ? -8 : 0) +
-                      (item.releaseDate ? Math.max(0, 2050 - Number(item.releaseDate.slice(0,4))) / 100 : 0);
-                  return score(y) - score(x);
-              });
-              if (verified[0]) return verified[0].artworkUrl100.replace(/100x100bb/, '300x300bb');
+              for (const item of (Array.isArray(data.results) ? data.results : [])) {
+                  if (item.kind !== 'song' || !item.artworkUrl100 || !artistMatches(artist,item.artistName) || !songMatches(searchTitle,item.trackName)) continue;
+                  if (collectionBad.test(item.collectionName || '')) continue;
+                  if (/karaoke|tribute|cover version/i.test(item.artistName || '')) continue;
+                  candidates.set(item.trackId || item.artworkUrl100, item);
+              }
           }
-          return null;
+          const ranked = [...candidates.values()].sort((a,b) => {
+              const score = item => {
+                  const album = normalizeArtworkText(item.collectionName);
+                  const song = normalizeArtworkText(title);
+                  const single = album === song || album.startsWith(song + ' single') || /\bsingle\b/i.test(item.collectionName || '');
+                  const exact = normalizeArtworkText(item.trackName) === song;
+                  const original = !/remaster|deluxe|anniversary|expanded|reissue|re recorded|live|remix/i.test((item.collectionName||'')+' '+(item.trackName||''));
+                  return (single ? 100 : 0) + (exact ? 20 : 0) + (original ? 12 : 0);
+              };
+              return score(b)-score(a) || earliestYear(a.releaseDate)-earliestYear(b.releaseDate);
+          });
+          const best = ranked[0];
+          return best ? {url:best.artworkUrl100.replace(/100x100bb/, '300x300bb'), source:'iTunes candidate: '+(best.collectionName||'unknown release'), year:earliestYear(best.releaseDate), isSingle: normalizeArtworkText(best.collectionName) === normalizeArtworkText(title) || /\bsingle\b/i.test(best.collectionName||'')} : null;
       }
       // STAR RADIO manual artwork library (same GitHub folder as index.html).
       // Keys: "artist|title"; values: local image paths or HTTPS URLs.
@@ -876,38 +902,40 @@
           const key = normalizeArtworkText(artist) + '|' + normalizeArtworkText(title);
           const manualCovers = await getManualCovers();
           if (manualCovers.has(key)) {
-              logCoverDiagnostic(artist, title, 'FOUND', 'Manual covers.json');
+              logCoverDiagnostic(artist, title, 'FOUND', 'Verified manual covers.json');
               return manualCovers.get(key);
           }
           if (artworkCache.has(key)) return artworkCache.get(key);
           if (artworkPending.has(key)) return artworkPending.get(key);
           const pending = (async () => {
-              let cover = null;
-              let itunesStatus = 'no verified match';
-              let mbStatus = 'not searched';
+              let itunes = null, mb = null;
+              let itunesStatus = 'no verified match', mbStatus = 'not searched';
               try {
-                  cover = await searchVerifiedItunesArt(artist, title);
-                  if (cover) itunesStatus = 'matched';
-              } catch (err) { itunesStatus = 'request error: ' + String(err.message || err); console.warn('iTunes artwork unavailable:', err); }
-              if (!cover) {
-                  mbStatus = 'no verified release with available image';
+                  itunes = await searchVerifiedItunesArt(artist,title);
+                  if (itunes) itunesStatus = itunes.source;
+              } catch (err) { itunesStatus = 'request error: ' + String(err.message || err); }
+              // For singles, seek a documented original release even if iTunes found a later edition.
+              // Skip the slower MusicBrainz request only for likely original iTunes singles.
+              if (!itunes || !itunes.isSingle) {
+                  mbStatus = 'no matching release with image';
                   try {
-                      cover = await searchMusicBrainzArt(artist, title);
-                      if (cover) mbStatus = 'matched';
-                  } catch (err) { mbStatus = 'request error: ' + String(err.message || err); console.warn('MusicBrainz artwork unavailable:', err); }
+                      mb = await searchMusicBrainzArt(artist,title);
+                      if (mb) mbStatus = mb.source;
+                  } catch (err) { mbStatus = 'request error: ' + String(err.message || err); }
               }
-              if (cover) {
-                  logCoverDiagnostic(artist, title, 'FOUND', `iTunes: ${itunesStatus}; MusicBrainz: ${mbStatus}`);
-                  artworkCache.set(key, cover);
-                  return cover;
+              const chosen = mb || itunes;
+              if (chosen) {
+                  const source = mb ? mbStatus : itunesStatus;
+                  logCoverDiagnostic(artist,title,'FOUND',`Selected: ${source}; iTunes: ${itunesStatus}; MusicBrainz: ${mbStatus}. Review authenticity if needed.`);
+                  artworkCache.set(key,chosen.url);
+                  return chosen.url;
               }
-              logCoverDiagnostic(artist, title, 'NO COVER', `iTunes: ${itunesStatus}; MusicBrainz: ${mbStatus}`);
-              // Do not cache failures permanently: another attempt can succeed later.
+              logCoverDiagnostic(artist,title,'NO COVER',`iTunes: ${itunesStatus}; MusicBrainz: ${mbStatus}`);
+              // Never cache missing artwork permanently: retry on a future track occurrence.
               return DEFAULT_COVER;
           })();
-          artworkPending.set(key, pending);
-          try { return await pending; }
-          finally { artworkPending.delete(key); }
+          artworkPending.set(key,pending);
+          try {return await pending;} finally {artworkPending.delete(key);}
       }
 
       mainCover.addEventListener('error', () => {
@@ -1072,7 +1100,7 @@
       }
 
       // --- Discord Webhook Modal ---
-      const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1557373269688975491/OXFTbTWxYESmYek2l5CDLdARiGM21jWRe1O5DoZcPaoDfnRSV-syt5bMT3tHrTPTGFwx';
+      const DISCORD_WEBHOOK_URL = ''; // Disabled: configure a secure server-side relay before enabling messages.
       const COOLDOWN_MS = 30000;
 
       const discordBtn = document.getElementById('discordBtn');
@@ -1105,6 +1133,11 @@
           const text = document.getElementById('msgText').value.trim().slice(0, 500);
           if (!name || !text) return;
 
+          if (!DISCORD_WEBHOOK_URL) {
+              msgStatus.classList.add('err');
+              msgStatus.innerText = 'Η αποστολή μηνυμάτων δεν είναι προσωρινά διαθέσιμη. Χρησιμοποίησε τον σύνδεσμο Discord παρακάτω.';
+              return;
+          }
           msgSend.disabled = true;
           msgStatus.innerText = 'Αποστολή...';
 
