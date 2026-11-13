@@ -597,54 +597,37 @@
 
         body::before,
         body::after {
-            content: "❄";
+            content: "";
             position: fixed;
             z-index: 0;
-            top: -10vh;
-            left: 0;
-            color: rgba(255, 247, 221, 0.76);
-            font-size: 12px;
-            line-height: 1;
+            inset: 0;
             pointer-events: none;
-            animation: star-radio-snow 20s linear infinite;
+            background-repeat: repeat;
+            will-change: background-position;
         }
 
         body::before {
-            text-shadow:
-                4vw 12vh 0 rgba(255,247,221,.72), 11vw 39vh 0 rgba(255,247,221,.54),
-                18vw 71vh 0 rgba(255,247,221,.68), 25vw 23vh 0 rgba(255,247,221,.56),
-                32vw 55vh 0 rgba(255,247,221,.74), 39vw 88vh 0 rgba(255,247,221,.52),
-                46vw 15vh 0 rgba(255,247,221,.65), 53vw 47vh 0 rgba(255,247,221,.5),
-                60vw 79vh 0 rgba(255,247,221,.7), 67vw 30vh 0 rgba(255,247,221,.56),
-                74vw 62vh 0 rgba(255,247,221,.72), 81vw 94vh 0 rgba(255,247,221,.48),
-                88vw 18vh 0 rgba(255,247,221,.68), 95vw 50vh 0 rgba(255,247,221,.58),
-                15vw 103vh 0 rgba(255,247,221,.56), 44vw 108vh 0 rgba(255,247,221,.55),
-                72vw 112vh 0 rgba(255,247,221,.6);
+            opacity: .62;
+            background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20360%20280%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff4d8%22%20stroke-opacity%3D%22.9%22%20stroke-width%3D%221.7%22%20stroke-linecap%3D%22round%22%3E%3Cg%20transform%3D%22translate(45%2048)%20scale(1.15)%22%3E%3Cpath%20d%3D%22M0-10V10M-8-5l16%2010M8-5L-8%205M0-10l-3%203m3-3%203%203M0%2010l-3-3m3%203%203-3M-8-5l4%201m-4-1%201%204M8-5l-4%201m4-1-1%204M-8%205l4-1m-4%201%201-4M8%205l-4-1m4%201-1-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(172%2095)%20scale(.78)%22%3E%3Cpath%20d%3D%22M0-10V10M-8-5l16%2010M8-5L-8%205M0-10l-3%203m3-3%203%203M0%2010l-3-3m3%203%203-3M-8-5l4%201m-4-1%201%204M8-5l-4%201m4-1-1%204M-8%205l4-1m-4%201%201-4M8%205l-4-1m4%201-1-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(325%20188)%20scale(1.05)%22%3E%3Cpath%20d%3D%22M0-10V10M-8-5l16%2010M8-5L-8%205M0-10l-3%203m3-3%203%203M0%2010l-3-3m3%203%203-3M-8-5l4%201m-4-1%201%204M8-5l-4%201m4-1-1%204M-8%205l4-1m-4%201%201-4M8%205l-4-1m4%201-1-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(92%20232)%20scale(.72)%22%3E%3Cpath%20d%3D%22M0-10V10M-8-5l16%2010M8-5L-8%205M0-10l-3%203m3-3%203%203M0%2010l-3-3m3%203%203-3M-8-5l4%201m-4-1%201%204M8-5l-4%201m4-1-1%204M-8%205l4-1m-4%201%201-4M8%205l-4-1m4%201-1-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(265%2018)%20scale(.65)%22%3E%3Cpath%20d%3D%22M0-10V10M-8-5l16%2010M8-5L-8%205M0-10l-3%203m3-3%203%203M0%2010l-3-3m3%203%203-3M-8-5l4%201m-4-1%201%204M8-5l-4%201m4-1-1%204M-8%205l4-1m-4%201%201-4M8%205l-4-1m4%201-1-4%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+            background-size: 360px 280px;
+            animation: star-radio-snow 23s linear infinite;
         }
 
         body::after {
-            content: "❅";
-            top: -18vh;
-            left: 3vw;
-            color: rgba(255,255,255,.58);
-            font-size: 8px;
-            text-shadow:
-                8vw 28vh 0 rgba(255,255,255,.55), 16vw 58vh 0 rgba(255,255,255,.42),
-                23vw 91vh 0 rgba(255,255,255,.55), 30vw 9vh 0 rgba(255,255,255,.45),
-                37vw 40vh 0 rgba(255,255,255,.58), 44vw 73vh 0 rgba(255,255,255,.4),
-                51vw 102vh 0 rgba(255,255,255,.53), 58vw 25vh 0 rgba(255,255,255,.45),
-                65vw 56vh 0 rgba(255,255,255,.6), 72vw 87vh 0 rgba(255,255,255,.44),
-                79vw 12vh 0 rgba(255,255,255,.56), 86vw 44vh 0 rgba(255,255,255,.42),
-                93vw 76vh 0 rgba(255,255,255,.58), 99vw 105vh 0 rgba(255,255,255,.46);
-            animation: star-radio-snow-soft 31s linear -13s infinite;
+            opacity: .38;
+            background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20240%20220%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff9ea%22%20stroke-opacity%3D%22.78%22%20stroke-width%3D%221.35%22%20stroke-linecap%3D%22round%22%3E%3Cg%20transform%3D%22translate(20%2090)%20scale(.6)%22%3E%3Cpath%20d%3D%22M0-10V10M-8-5l16%2010M8-5L-8%205M0-10l-3%203m3-3%203%203M0%2010l-3-3m3%203%203-3M-8-5l4%201m-4-1%201%204M8-5l-4%201m4-1-1%204M-8%205l4-1m-4%201%201-4M8%205l-4-1m4%201-1-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(150%2048)%20scale(.68)%22%3E%3Cpath%20d%3D%22M0-10V10M-8-5l16%2010M8-5L-8%205M0-10l-3%203m3-3%203%203M0%2010l-3-3m3%203%203-3M-8-5l4%201m-4-1%201%204M8-5l-4%201m4-1-1%204M-8%205l4-1m-4%201%201-4M8%205l-4-1m4%201-1-4%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(90%20195)%20scale(.55)%22%3E%3Cpath%20d%3D%22M0-10V10M-8-5l16%2010M8-5L-8%205M0-10l-3%203m3-3%203%203M0%2010l-3-3m3%203%203-3M-8-5l4%201m-4-1%201%204M8-5l-4%201m4-1-1%204M-8%205l4-1m-4%201%201-4M8%205l-4-1m4%201-1-4%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+            background-size: 240px 220px;
+            animation: star-radio-snow-small 31s linear -12s infinite;
         }
 
         @keyframes star-radio-snow {
-            to { transform: translateY(120vh) rotate(180deg); }
+            from { background-position: 0 0; }
+            to { background-position: 0 280px; }
         }
 
-        @keyframes star-radio-snow-soft {
-            to { transform: translateY(132vh) rotate(-150deg); }
+        @keyframes star-radio-snow-small {
+            from { background-position: 0 0; }
+            to { background-position: 0 220px; }
         }
 
         .app-container { position: relative; z-index: 1; }
@@ -796,8 +779,7 @@
             .player-card::before { left: 7px; background-size: 480px 160px; background-position: 23% 57%; }
             .player-card::after { right: 7px; background-size: 480px 160px; background-position: 77% 57%; }
             .history-card { padding: 17px 14px; }
-            body::before { font-size: 8px; }
-            body::after { font-size: 6px; }
+
         }
 
         @media (max-width: 360px) {
