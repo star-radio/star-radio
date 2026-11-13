@@ -750,6 +750,23 @@
         .player-card::before { left: 10px; background-position: 11% 57%; }
         .player-card::after { right: 10px; background-position: 89% 57%; transform: scaleX(-1); }
 
+        .holly-corner {
+            position: absolute;
+            z-index: 2;
+            bottom: 12px;
+            width: 104px;
+            height: 76px;
+            background: url("holiday-garland.webp") 11% 57% / 900px 300px no-repeat;
+            -webkit-mask-image: radial-gradient(ellipse at center, #000 48%, rgba(0,0,0,.9) 65%, transparent 86%);
+            mask-image: radial-gradient(ellipse at center, #000 48%, rgba(0,0,0,.9) 65%, transparent 86%);
+            pointer-events: none;
+            opacity: .96;
+        }
+
+        .holly-corner-left { left: 8px; }
+        .holly-corner-right { right: 8px; transform: scaleX(-1); }
+        .social-container { position: relative; z-index: 3; }
+
         .history-card { padding: 25px; }
         .history-card::before,
         .history-card::after {
@@ -778,6 +795,9 @@
             .player-card::before, .player-card::after { top: 8px; width: 48px; height: 38px; background-size: 115px 38px; }
             .player-card::before { left: 7px; background-size: 480px 160px; background-position: 23% 57%; }
             .player-card::after { right: 7px; background-size: 480px 160px; background-position: 77% 57%; }
+            .holly-corner { bottom: 8px; width: 54px; height: 40px; background-size: 480px 160px; }
+            .holly-corner-left { left: 5px; }
+            .holly-corner-right { right: 5px; }
             .history-card { padding: 17px 14px; }
 
         }
@@ -900,6 +920,8 @@
                 </div>
             </a>
         </div>
+        <span class="holly-corner holly-corner-left" aria-hidden="true"></span>
+        <span class="holly-corner holly-corner-right" aria-hidden="true"></span>
 
       </section>
 
