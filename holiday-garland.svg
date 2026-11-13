@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 70" preserveAspectRatio="none">
+<path d="M4 12 C210 68 360 3 600 23 S980 69 1196 12" fill="none" stroke="#315c35" stroke-width="5"/>
+<g fill="#28633a" stroke="#83a65c" stroke-width="1.5">
+<path d="M90 29l-24-17 31 10-13-21 25 25zM185 43l-22-20 30 13-10-22 24 29zM280 36l-24-20 32 13-11-22 25 28zM380 25l-23-20 31 12-10-19 25 26zM485 22l-23-18 31 11-9-18 24 24zM590 28l-24-18 33 11-10-17 24 24zM695 37l-24-20 32 13-10-21 25 28zM800 45l-22-19 31 12-9-21 24 28zM905 42l-23-19 32 12-10-20 24 27zM1010 31l-24-19 33 12-9-20 23 27zM1110 22l-22-16 30 10-8-16 22 22z"/>
+</g>
+<g fill="#ffd66b" stroke="#9b6a19" stroke-width="2">
+<circle cx="150" cy="31" r="6"/><circle cx="330" cy="35" r="6"/><circle cx="510" cy="19" r="6"/><circle cx="690" cy="31" r="6"/><circle cx="870" cy="47" r="6"/><circle cx="1050" cy="28" r="6"/>
+</g><g fill="#c12e41"><circle cx="600" cy="21" r="5"/><circle cx="610" cy="26" r="5"/><circle cx="603" cy="32" r="5"/></g>
+</svg>
