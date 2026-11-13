@@ -720,13 +720,13 @@
             height: 66px;
             background-image: url("holiday-garland.webp");
             background-repeat: no-repeat;
-            background-size: 205px 68px;
+            background-size: 900px 300px;
             pointer-events: none;
             filter: drop-shadow(0 3px 4px rgba(0,0,0,.6));
         }
 
-        .player-card::before { left: 10px; background-position: left center; }
-        .player-card::after { right: 10px; background-position: right center; transform: scaleX(-1); }
+        .player-card::before { left: 10px; background-position: 23% 57%; }
+        .player-card::after { right: 10px; background-position: 77% 57%; transform: scaleX(-1); }
 
         .history-card { padding: 25px; }
         .history-card::before,
@@ -754,8 +754,8 @@
             .social-link { gap: 5px; padding: 5px 9px 5px 6px; font-size: .76rem; }
             .social-badge { width: 30px; height: 30px; }
             .player-card::before, .player-card::after { top: 8px; width: 48px; height: 38px; background-size: 115px 38px; }
-            .player-card::before { left: 7px; }
-            .player-card::after { right: 7px; }
+            .player-card::before { left: 7px; background-size: 480px 160px; background-position: 23% 57%; }
+            .player-card::after { right: 7px; background-size: 480px 160px; background-position: 77% 57%; }
             .history-card { padding: 17px 14px; }
             body::before { font-size: 8px; }
         }
