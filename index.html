@@ -721,12 +721,16 @@
             background-image: url("holiday-garland.webp");
             background-repeat: no-repeat;
             background-size: 900px 300px;
+            -webkit-mask-image: radial-gradient(ellipse at center, #000 48%, rgba(0,0,0,.92) 64%, transparent 86%);
+            mask-image: radial-gradient(ellipse at center, #000 48%, rgba(0,0,0,.92) 64%, transparent 86%);
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
             pointer-events: none;
             filter: drop-shadow(0 3px 4px rgba(0,0,0,.6));
         }
 
-        .player-card::before { left: 10px; background-position: 23% 57%; }
-        .player-card::after { right: 10px; background-position: 77% 57%; transform: scaleX(-1); }
+        .player-card::before { left: 10px; background-position: 11% 57%; }
+        .player-card::after { right: 10px; background-position: 89% 57%; transform: scaleX(-1); }
 
         .history-card { padding: 25px; }
         .history-card::before,
