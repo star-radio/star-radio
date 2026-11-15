@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STAR RADIO — Διαχείριση εξωφύλλων</title>
+<style>
+:root{color-scheme:dark;--bg:#17050b;--panel:#2b101a;--line:#6d293e;--pink:#ff3b78;--text:#fff;--muted:#d1aab7;--good:#7be0a0;--bad:#ff8790}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,#5d1028,var(--bg) 62%);font:16px/1.5 system-ui,Segoe UI,sans-serif;color:var(--text);padding:24px}
+main{width:min(760px,100%);margin:35px auto}.card{background:#24101a;border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 16px 45px #0006}
+h1{margin:0 0 6px;font-size:clamp(24px,5vw,34px)}h2{font-size:18px;margin:0 0 14px;color:#ffd8e3}.intro{color:var(--muted);margin:0 0 22px}
+section{border-top:1px solid #633044;padding-top:20px;margin-top:20px}
+label{display:block;font-weight:650;margin:14px 0 6px}input[type=text],input[type=password],input[type=file]{width:100%;border:1px solid #835064;background:#170b11;color:#fff;border-radius:9px;padding:12px;font:inherit}input:focus{outline:2px solid var(--pink);outline-offset:1px}
+small,.hint{display:block;color:var(--muted);font-size:13px;margin-top:5px}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+button{border:0;border-radius:9px;background:var(--pink);color:#210611;padding:12px 18px;font-weight:800;font-size:16px;cursor:pointer;margin-top:18px}button:disabled{opacity:.55;cursor:wait}
+.status{display:none;white-space:pre-wrap;margin-top:16px;padding:12px;border-radius:9px;background:#15090e;border:1px solid #633044}.status.good{display:block;color:var(--good)}.status.bad{display:block;color:var(--bad)}
+#preview{display:none;max-width:180px;max-height:180px;object-fit:cover;border-radius:10px;margin-top:12px;border:1px solid #835064}
+a{color:#ff9cba}.filename{color:#fff;font-family:ui-monospace,Consolas,monospace;overflow-wrap:anywhere}
+@media(max-width:600px){body{padding:12px}.card{padding:18px}.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<div class="card">
+<h1>STAR RADIO</h1>
+<p class="intro">Διαχείριση χειροκίνητων εξωφύλλων</p>
+<p class="hint">Μεταφόρτωσε εικόνα και καταχώρισε την αντιστοίχιση καλλιτέχνη–τίτλου. Η εικόνα αποθηκεύεται στον φάκελο <b>covers/</b> και ενημερώνεται το <b>covers.json</b>, ώστε να εμφανιστεί στον player.</p>
+
+<section>
+<h2>1. Σύνδεση GitHub</h2>
+<label for="token">Fine-grained access token</label>
+<input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="Επικόλλησε εδώ το token σου">
+<small>Χρειάζεται πρόσβαση μόνο στο repository star-radio/star-radio με δικαίωμα Contents: Read and write. Το token μένει μόνο στη μνήμη αυτής της σελίδας και δεν αποθηκεύεται. Μην το στείλεις σε κανέναν.</small>
+<p class="hint">Αν δεν έχεις token, δημιούργησε ένα από τις <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">ρυθμίσεις Fine-grained tokens του GitHub</a>. Επίλεξε repository <b>star-radio/star-radio</b> και Repository permissions → Contents → <b>Read and write</b>.</p>
+</section>
+
+<section>
+<h2>2. Στοιχεία εξωφύλλου</h2>
+<div class="row">
+<div><label for="artist">Καλλιτέχνης</label><input id="artist" type="text" maxlength="120" placeholder="π.χ. The Bucketheads"></div>
+<div><label for="title">Τίτλος τραγουδιού</label><input id="title" type="text" maxlength="160" placeholder="π.χ. The Bomb"></div>
+</div>
+<label for="image">Αρχείο εικόνας</label>
+<input id="image" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+<small>Δεκτά JPG, PNG ή WEBP, έως 8 MB. Το όνομα δημιουργείται αυτόματα από καλλιτέχνη και τίτλο.</small>
+<p id="filename" class="filename"></p>
+<img id="preview" alt="Προεπισκόπηση εξωφύλλου">
+<button id="upload" type="button">Ανέβασμα στο covers/</button>
+<div id="status" class="status" role="status" aria-live="polite"></div>
+</section>
+</div>
+</main>
+<script>
+(() => {
+  const OWNER = 'star-radio';
+  const REPO = 'star-radio';
+  const BRANCH = 'main';
+  const API = 'https://api.github.com';
+  const token = document.getElementById('token');
+  const artist = document.getElementById('artist');
+  const title = document.getElementById('title');
+  const image = document.getElementById('image');
+  const upload = document.getElementById('upload');
+  const status = document.getElementById('status');
+  const preview = document.getElementById('preview');
+  const filename = document.getElementById('filename');
+  let previewUrl = '';
+
+  function normalized(value) {
+    return String(value || '').normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '').toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/\b(feat\.?|featuring|ft\.?)\s+.*$/i, '')
+      .replace(/\s*\([^)]*(remaster|mix|edit|version|live|radio)[^)]*\)/gi, '')
+      .replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+  }
+  function slug(value) { return normalized(value).replace(/\s+/g, '-'); }
+  function setStatus(message, kind) {
+    status.textContent = message;
+    status.className = 'status ' + (kind || '');
+  }
+  function updateFilename() {
+    const ext = image.files[0]?.name.match(/\.(jpe?g|png|webp)$/i)?.[1]?.toLowerCase();
+    filename.textContent = artist.value.trim() && title.value.trim() && ext
+      ? 'Αρχείο: covers/' + slug(artist.value) + '-' + slug(title.value) + '.' + ext
+      : '';
+  }
+  artist.addEventListener('input', updateFilename);
+  title.addEventListener('input', updateFilename);
+  image.addEventListener('change', () => {
+    updateFilename();
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (image.files[0]) {
+      previewUrl = URL.createObjectURL(image.files[0]);
+      preview.src = previewUrl;
+      preview.style.display = 'block';
+    } else {
+      preview.removeAttribute('src');
+      preview.style.display = 'none';
+    }
+    status.className = 'status';
+  });
+
+  function headers() {
+    return {
+      'Accept': 'application/vnd.github+json',
+      'Authorization': 'Bearer ' + token.value.trim(),
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json'
+    };
+  }
+  async function api(path, options = {}) {
+    const response = await fetch(API + path, { ...options, headers: headers() });
+    const text = await response.text();
+    let data = {};
+    try { data = text ? JSON.parse(text) : {}; } catch (_) {}
+    if (!response.ok) {
+      const detail = data.message || ('HTTP ' + response.status);
+      throw new Error(detail);
+    }
+    return data;
+  }
+  function fromBase64Utf8(value) {
+    const binary = atob(value.replace(/\s/g, ''));
+    const bytes = Uint8Array.from(binary, ch => ch.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+  function toBase64(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    const chunk = 0x8000;
+    for (let offset = 0; offset < bytes.length; offset += chunk) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + chunk));
+    }
+    return btoa(binary);
+  }
+  function call(method, path, body) {
+    return api(path, { method, body: JSON.stringify(body) });
+  }
+
+  upload.addEventListener('click', async () => {
+    const githubToken = token.value.trim();
+    const artistName = artist.value.trim();
+    const songTitle = title.value.trim();
+    const file = image.files[0];
+    const extension = file?.name.match(/\.(jpe?g|png|webp)$/i)?.[1]?.toLowerCase();
+    if (!githubToken) return setStatus('Συμπλήρωσε πρώτα το GitHub token.', 'bad');
+    if (!artistName || !songTitle) return setStatus('Συμπλήρωσε καλλιτέχνη και τίτλο.', 'bad');
+    if (!file || !extension) return setStatus('Επίλεξε JPG, PNG ή WEBP εικόνα.', 'bad');
+    if (file.size > 8 * 1024 * 1024) return setStatus('Η εικόνα πρέπει να είναι έως 8 MB.', 'bad');
+    const artistSlug = slug(artistName), titleSlug = slug(songTitle);
+    if (!artistSlug || !titleSlug) return setStatus('Ο καλλιτέχνης και ο τίτλος πρέπει να περιέχουν γράμματα ή αριθμούς.', 'bad');
+
+    const coverPath = 'covers/' + artistSlug + '-' + titleSlug + '.' + extension;
+    const mapKey = artistName + '|' + songTitle;
+    upload.disabled = true;
+    setStatus('Γίνεται ενημέρωση του GitHub…', '');
+    try {
+      // Read one fixed branch head so the image and covers.json can be committed atomically.
+      const ref = await api('/repos/' + OWNER + '/' + REPO + '/git/ref/heads/' + BRANCH);
+      const parentSha = ref.object.sha;
+      const parentCommit = await api('/repos/' + OWNER + '/' + REPO + '/git/commits/' + parentSha);
+      const currentTree = parentCommit.tree.sha;
+
+      const manifestResponse = await api('/repos/' + OWNER + '/' + REPO + '/contents/covers.json?ref=' + encodeURIComponent(parentSha));
+      let manifestText = manifestResponse.content ? fromBase64Utf8(manifestResponse.content) : '';
+      let manifest = manifestText.trim() ? JSON.parse(manifestText) : {};
+      if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+        throw new Error('Το covers.json δεν έχει την αναμενόμενη μορφή αντικειμένου. Δεν έγινε αλλαγή.');
+      }
+      manifest[mapKey] = coverPath;
+
+      const imageBase64 = toBase64(await file.arrayBuffer());
+      const imageBlob = await call('POST', '/repos/' + OWNER + '/' + REPO + '/git/blobs', {
+        content: imageBase64, encoding: 'base64'
+      });
+      const manifestBlob = await call('POST', '/repos/' + OWNER + '/' + REPO + '/git/blobs', {
+        content: JSON.stringify(manifest, null, 2) + '\n', encoding: 'utf-8'
+      });
+      const newTree = await call('POST', '/repos/' + OWNER + '/' + REPO + '/git/trees', {
+        base_tree: currentTree,
+        tree: [
+          { path: coverPath, mode: '100644', type: 'blob', sha: imageBlob.sha },
+          { path: 'covers.json', mode: '100644', type: 'blob', sha: manifestBlob.sha }
+        ]
+      });
+      const newCommit = await call('POST', '/repos/' + OWNER + '/' + REPO + '/git/commits', {
+        message: 'Update cover: ' + artistName + ' - ' + songTitle,
+        tree: newTree.sha,
+        parents: [parentSha]
+      });
+      await call('PATCH', '/repos/' + OWNER + '/' + REPO + '/git/refs/heads/' + BRANCH, {
+        sha: newCommit.sha, force: false
+      });
+      setStatus('Έτοιμο. Η εικόνα ανέβηκε στο ' + coverPath + ' και η αντιστοίχιση προστέθηκε στο covers.json. Κάνε Ctrl+F5 στον player για να δεις το νέο εξώφυλλο.', 'good');
+    } catch (error) {
+      let message = error.message || 'Άγνωστο σφάλμα';
+      if (/401|Bad credentials/i.test(message)) message = 'Το token δεν έγινε δεκτό. Έλεγξε ότι είναι ενεργό και έχει πρόσβαση στο star-radio/star-radio.';
+      else if (/403|Resource not accessible/i.test(message)) message = 'Το token δεν έχει δικαίωμα Contents: Read and write στο repository star-radio/star-radio.';
+      else if (/404|Not Found/i.test(message)) message = 'Δεν βρέθηκε το repository, ο φάκελος covers ή το covers.json. Έλεγξε ότι το token δίνει πρόσβαση στο star-radio/star-radio.';
+      else if (/409|422|Reference update failed|Update is not a fast forward/i.test(message)) message = 'Το branch άλλαξε ταυτόχρονα. Δεν έγινε μερική ενημέρωση· πάτησε ξανά το κουμπί.';
+      setStatus('Δεν ολοκληρώθηκε η μεταφόρτωση. ' + message, 'bad');
+    } finally {
+      upload.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
