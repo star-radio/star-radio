@@ -4,73 +4,60 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#18070d">
-  <title>Οδηγός εξωφύλλων | STAR RADIO</title>
+  <title>Φόρμα εξωφύλλων | STAR RADIO</title>
   <style>
     :root{color-scheme:dark;--bg:#12070b;--panel:#211017;--line:#472332;--pink:#ff3f91;--gold:#f3cb68;--text:#fff7fa;--muted:#d0b9c2}
     *{box-sizing:border-box}
-    body{margin:0;background:radial-gradient(ellipse at top,#351120 0,#12070b 55%);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
-    main{width:min(960px,calc(100% - 32px));margin:0 auto;padding:42px 0 70px}
-    header{padding:28px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(135deg,#351321,#1d0d14)}
+    body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#351120 0,#12070b 58%);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{width:min(840px,calc(100% - 32px));margin:0 auto;padding:42px 0 64px}
+    header,section{padding:28px;border:1px solid var(--line);border-radius:20px;background:rgba(33,16,23,.94)}
     .brand{font-size:13px;letter-spacing:.16em;color:var(--pink);font-weight:800}
-    h1{font-size:clamp(30px,5vw,48px);line-height:1.12;margin:12px 0}
-    h2{font-size:22px;margin:0 0 12px}
+    h1{font-size:clamp(30px,5vw,46px);line-height:1.12;margin:12px 0}
+    h2{font-size:21px;margin:0 0 8px}
     p{margin:8px 0;color:var(--muted)}
-    .buttons{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
-    a.button{display:inline-block;padding:12px 18px;border-radius:12px;background:var(--pink);color:#260b17;font-weight:800;text-decoration:none}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+    a.button{display:inline-block;padding:13px 18px;border-radius:12px;background:var(--pink);color:#260b17;font-weight:800;text-decoration:none}
     a.secondary{background:#321724;color:var(--text);border:1px solid var(--line)}
-    section{margin-top:18px;padding:24px;border:1px solid var(--line);border-radius:18px;background:rgba(33,16,23,.92)}
-    .steps{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .step{padding:18px;border:1px solid var(--line);border-radius:14px;background:#190c12}
-    .num{display:inline-grid;place-items:center;width:30px;height:30px;margin-bottom:9px;border-radius:50%;background:var(--pink);color:#260b17;font-weight:900}
-    .note{border-left:4px solid var(--gold);padding:12px 16px;background:#282016;border-radius:0 10px 10px 0}
-    .note p{color:#f0dfba}
+    section{margin-top:18px}
+    ol{margin:12px 0 0;padding-left:24px}
+    li{padding:4px 0;color:var(--muted)}
     b{color:var(--text)}
-    footer{padding:22px 4px;color:var(--muted);font-size:13px}
-    @media(max-width:650px){main{padding-top:18px}.steps{grid-template-columns:1fr}section,header{padding:20px}}
+    .note{margin-top:18px;padding:13px 16px;border-left:4px solid var(--gold);border-radius:0 10px 10px 0;background:#282016}
+    .note p{color:#f0dfba}
+    footer{padding:20px 4px;color:var(--muted);font-size:13px}
+    @media(max-width:600px){main{padding-top:18px}header,section{padding:21px}}
   </style>
 </head>
 <body>
 <main>
   <header>
     <div class="brand">STAR RADIO · STUDIO CONTROL</div>
-    <h1>Οδηγός για τα εξώφυλλα</h1>
-    <p>Διόρθωσε μια λάθος εικόνα ή πρόσθεσε το σωστό εξώφυλλο για ένα τραγούδι. Οι αλλαγές γίνονται από την καρτέλα «Εξώφυλλα» του πίνακα ελέγχου.</p>
-    <div class="buttons">
-      <a class="button" href="https://star-radio-control.zestyrhino1024.chatgpt.site/">Άνοιγμα πίνακα ελέγχου →</a>
-      <a class="button secondary" href="https://star-radio.online/">STAR RADIO</a>
+    <h1>Φόρμα εξωφύλλων</h1>
+    <p>Άνοιξε τη φόρμα για να προσθέσεις σωστό εξώφυλλο ή να διορθώσεις λάθος εικόνα. Η καταχώριση γίνεται στον πίνακα ελέγχου.</p>
+    <div class="actions">
+      <a class="button" href="https://star-radio-control.zestyrhino1024.chatgpt.site/?page=covers&amp;new=1">Νέο εξώφυλλο →</a>
+      <a class="button secondary" href="https://star-radio-control.zestyrhino1024.chatgpt.site/?page=covers">Διόρθωση υπάρχοντος</a>
     </div>
   </header>
 
   <section>
-    <h2>Διόρθωση υπάρχοντος εξωφύλλου</h2>
-    <div class="steps">
-      <article class="step"><span class="num">1</span><h2>Άνοιξε την καρτέλα</h2><p>Στον πίνακα STAR RADIO επίλεξε <b>Εξώφυλλα</b> από το μενού.</p></article>
-      <article class="step"><span class="num">2</span><h2>Βρες το τραγούδι</h2><p>Στη λίστα, πάτησε το <b>μολύβι</b> δίπλα στην αντιστοίχιση που θέλεις να διορθώσεις.</p></article>
-      <article class="step"><span class="num">3</span><h2>Έλεγξε τα στοιχεία</h2><p>Άφησε ή διόρθωσε καλλιτέχνη και τίτλο, όπως εμφανίζονται στη ροή του STAR RADIO.</p></article>
-      <article class="step"><span class="num">4</span><h2>Διάλεξε τη σωστή εικόνα</h2><p>Επίλεξε το εξώφυλλο από τον υπολογιστή και πάτησε <b>Αποθήκευση αλλαγών</b>.</p></article>
-    </div>
+    <h2>Η φόρμα έχει τέσσερα βήματα</h2>
+    <ol>
+      <li><b>Καλλιτέχνης:</b> γράψε το όνομα όπως εμφανίζεται στη ροή του STAR RADIO.</li>
+      <li><b>Τίτλος τραγουδιού:</b> γράψε τον τίτλο που αντιστοιχεί στο εξώφυλλο.</li>
+      <li><b>Επιλογή εικόνας:</b> διάλεξε από τον δίσκο σου αρχείο JPG, PNG ή WEBP έως 8 MB.</li>
+      <li><b>Αποθήκευση στο covers/:</b> πάτησε το κουμπί αποθήκευσης. Η εικόνα μπαίνει στον φάκελο <b>covers/</b> και ενημερώνεται μαζί το <b>covers.json</b>.</li>
+    </ol>
+    <div class="note"><p>Για διόρθωση υπάρχουσας εγγραφής, άνοιξε τη λίστα και πάτησε το μολύβι. Το × αφαιρεί την αντιστοίχιση.</p></div>
   </section>
 
   <section>
-    <h2>Προσθήκη νέου εξωφύλλου</h2>
-    <p>Πάτησε <b>+ Αντιστοίχιση</b>, γράψε τον καλλιτέχνη και τον τίτλο όπως ακούγονται στη ροή, διάλεξε την εικόνα και αποθήκευσε.</p>
-    <p>Δέχεται εικόνες <b>JPG, PNG ή WEBP έως 8 MB</b>. Το όνομα του αρχείου δεν χρειάζεται αλλαγή· ο πίνακας το τακτοποιεί αυτόματα.</p>
+    <h2>Μετά την αποθήκευση</h2>
+    <p>Το GitHub ενημερώνεται με ένα commit. Αν η νέα εικόνα δεν εμφανιστεί αμέσως στο site, περίμενε λίγα λεπτά και ανανέωσε τη σελίδα.</p>
+    <p>Το token μένει αποθηκευμένο στον browser όπου το έβαλες. Δεν μεταφέρεται σε άλλο browser ή υπολογιστή και παύει να λειτουργεί όταν λήξει στο GitHub.</p>
   </section>
 
-  <section>
-    <h2>Τι γίνεται όταν αποθηκεύσεις</h2>
-    <p>Η εικόνα ανεβαίνει στον φάκελο <b>covers/</b> του GitHub και το <b>covers.json</b> ενημερώνεται μαζί, σε ένα commit. Η αντιστοίχιση χρησιμοποιείται για το συγκεκριμένο τραγούδι στον player του STAR RADIO.</p>
-    <div class="note"><p><b>Αν δεν δεις αμέσως τη νέα εικόνα:</b> περίμενε λίγα λεπτά και ανανέωσε τη σελίδα του STAR RADIO, επειδή μπορεί να εμφανίζεται προσωρινά η παλιά εικόνα από την cache.</p></div>
-  </section>
-
-  <section>
-    <h2>Χρήσιμες σημειώσεις</h2>
-    <p>Για να αλλάξεις εξώφυλλο, χρησιμοποίησε το <b>μολύβι</b>. Το <b>×</b> αφαιρεί την αντιστοίχιση.</p>
-    <p>Το GitHub token αποθηκεύεται μόνο στον browser όπου το επικόλλησες, ώστε να μη χρειάζεται να το βάζεις ξανά σε κάθε επίσκεψη. Δεν μεταφέρεται σε άλλον browser ή υπολογιστή. Το token έχει ημερομηνία λήξης GitHub· όταν λήξει, πρέπει να δημιουργήσεις νέο.</p>
-    <p>Μην κοινοποιείς το token και μην το επικολλάς σε δημόσια μηνύματα. Αν αλλάξεις υπολογιστή ή browser, θα χρειαστεί να το επικολλήσεις εκεί.</p>
-  </section>
-
-  <footer>STAR RADIO · Οδηγίες διαχείρισης εξωφύλλων</footer>
+  <footer>STAR RADIO · Οδηγίες και φόρμα εξωφύλλων</footer>
 </main>
 </body>
 </html>
